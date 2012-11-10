@@ -1,5 +1,6 @@
 package net.tailriver.science.ga;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +16,7 @@ import java.util.Random;
  * </ul>
  * @author tailriver
  */
-public class MichalewiczSample implements GeneticAlgorithm {
+public class MichalewiczSample implements GeneticAlgorithmPlan {
 	private Random random = new Random();
 
 	@Override
@@ -26,44 +27,62 @@ public class MichalewiczSample implements GeneticAlgorithm {
 	}
 
 	@Override
+	public Individual inflateIndividual(Chromosome chromosome) {
+		chromosome.randomize(random);
+		return new Individual(chromosome);
+	}
+
+	@Override
 	public Random getRandom() {
 		return random;
 	}
 
 	@Override
-	public void calculateFitness(Collection<Individual> collection) {
-		for (Individual individual : collection) {
-			double x = individual.getScaledGenom(0, -1, 2);
+	public double calculateFitness(final Chromosome chromosome) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void calculateFitness(Collection<Individual> population) {
+		for (Individual individual : population) {
+			final Chromosome c = individual.chromosome;
+			double x = c.getScaled(0, -1, 2);
+			c.setPhenoType(0, Double.valueOf(x));
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;
-			individual.setPhenoType(0, Double.valueOf(x));
 			individual.setFitness(fitness);
 		}
 	}
 
 	@Override
-	public List<Individual> selectRoulette(int n, List<Individual> candidates) {
-		throw new UnsupportedOperationException();
+	public void applyCrossOver(Individual x, Individual y) {
+		GeneticAlgorithm.crossOverTwoPoint(x, y, random);
+	}
+
+	@Override
+	public List<Individual> applySelection(List<Individual> candidates) {
+		List<Individual> winner = new ArrayList<>();
+		winner.addAll( GeneticAlgorithm.selectElite(candidates, 5) );
+		winner.addAll( GeneticAlgorithm.selectTournament(candidates, random, 45, 2) );
+		return winner;
 	}
 
 	public static void main(String... args) {
 		Individual best = null;
-		Population pop = new Population(new MichalewiczSample(), 50);
+		GeneticAlgorithm pop = new GeneticAlgorithm(new MichalewiczSample(), 50);
 		pop.setReverseOrder(true);
 		for (int generation = 0; generation < 10000; generation++) {
-			pop.cross(CrossOver.SinglePoint, 0.25, 1);
+			pop.cross(0.25, 1);
 			pop.mutate(0.1);
 
 			Individual generationTop = pop.getRankAt(0);
 			if (best == null || generationTop.compareTo(best) > 0) {
 				best = generationTop;
-				System.out.println("[" + generation + "] " + Integer.toHexString(best.hashCode()));
-				System.out.println(best);
+				System.out.println(">> " + generation);
+				GeneticAlgorithm.printIndividual(best);
 				System.out.println();
 			}
 
-			pop.selectElite(5);
-			pop.selectTournament(45, 2);
-			pop.changeGeneration();
+			pop.select();
 		}
 	}
 }

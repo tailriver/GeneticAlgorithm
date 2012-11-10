@@ -36,7 +36,7 @@ public class ChoromosomeTest {
 	@Test
 	public void testRandomize() {
 		random = new Random(343129087);
-		Chromosome p = c.clone();
+		Chromosome p = new Chromosome(c);
 		p.randomize(random);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
 		assertEquals("1110 0010 0000 1111 0001 1110 1010 1100", p.toString());
@@ -49,25 +49,25 @@ public class ChoromosomeTest {
 		boolean result;
 	
 		// should not change
-		Chromosome p = c.clone();
+		Chromosome p = new Chromosome(c);
 		result = p.mutate(random, 0);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", p.toString());
 		assertFalse(result);
 	
 		// should flip about 3 bits
-		Chromosome q = c.clone();
+		Chromosome q = new Chromosome(c);
 		result = q.mutate(random, 0.1);
 		assertEquals("0010 0001 0000 0000 0000 0100 0000 0000", q.toString());
 		assertTrue(result);
 	
 		// should flip about half of all bits
-		Chromosome r = c.clone();
+		Chromosome r = new Chromosome(c);
 		result = r.mutate(random, 0.5);
 		assertEquals("1011 1100 1000 1111 1001 1110 1111 0100", r.toString());
 		assertTrue(result);
 	
 		// should invert all bits
-		Chromosome s = c.clone();
+		Chromosome s = new Chromosome(c);
 		result = s.mutate(random, 1);
 		assertEquals("1111 1111 1111 1111 1111 1111 1111 1111", s.toString());
 		assertTrue(result);
@@ -76,8 +76,8 @@ public class ChoromosomeTest {
 	@Test
 	public void testSwap() {
 		random = new Random(4329);
-		Chromosome a = c.clone();
-		Chromosome b = c.clone();
+		Chromosome a = new Chromosome(c);
+		Chromosome b = new Chromosome(c);
 		a.randomize(random);
 		b.randomize(random);
 		assertEquals("1110 0001 0101 1000 1011 1111 1101 1111", a.toString());
@@ -88,14 +88,14 @@ public class ChoromosomeTest {
 	}
 
 	@Test
-	public void testClone() {
-		Chromosome clone = c.clone();
-		assertNotSame(c, clone);
-		assertEquals(c.bitSizeTotal(),  clone.bitSizeTotal());
-		assertEquals(c.toString(), clone.toString());
+	public void testCopy() {
+		Chromosome copy = new Chromosome(c);
+		assertNotSame(c, copy);
+		assertEquals(c.bitSizeTotal(),  copy.bitSizeTotal());
+		assertEquals(c.toString(), copy.toString());
 	
 		c.randomize(random);
-		assertFalse(c.toString().equals(clone.toString()));
+		assertFalse(c.toString().equals(copy.toString()));
 	}
 
 	@Test
@@ -154,21 +154,21 @@ public class ChoromosomeTest {
 
 	@Test(expected=IndexOutOfBoundsException.class)
 	public void testSwapOutOfBounds1() {
-		Chromosome.swap(c.clone(), c.clone(), -1, 0);
+		Chromosome.swap(new Chromosome(c), new Chromosome(c), -1, 0);
 	}
 
 	@Test(expected=IndexOutOfBoundsException.class)
 	public void testSwapOutOfBounds2() {
-		Chromosome.swap(c.clone(), c.clone(), 0, c.bitSizeTotal() + 1);
+		Chromosome.swap(new Chromosome(c), new Chromosome(c), 0, c.bitSizeTotal() + 1);
 	}
 
 	@Test(expected=IndexOutOfBoundsException.class)
 	public void testSwapOutOfBounds3() {
-		Chromosome.swap(c.clone(), c.clone(), c.bitSizeTotal(), c.bitSizeTotal());
+		Chromosome.swap(new Chromosome(c), new Chromosome(c), c.bitSizeTotal(), c.bitSizeTotal());
 	}
 
 	@Test(expected=IndexOutOfBoundsException.class)
 	public void testSwapOutOfBounds4() {
-		Chromosome.swap(c.clone(), c.clone(), 1, 0);
+		Chromosome.swap(new Chromosome(c), new Chromosome(c), 1, 0);
 	}
 }

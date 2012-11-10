@@ -6,7 +6,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-public class Chromosome implements Cloneable {
+public class Chromosome {
 	private int[] offsetArray;
 	private int[] nbitArray;
 	private BitSet genoType;
@@ -24,6 +24,17 @@ public class Chromosome implements Cloneable {
 			offsetArray[i] = offsetList.get(i);
 			nbitArray[i]   = nbitList.get(i);
 		}
+	}
+
+	// shares address: offsetAray, nbitArray
+	// shallow copy: phenoType
+	// deep copy: genoType
+	public Chromosome(Chromosome original) {
+		bitSize     = original.bitSize;
+		offsetArray = original.offsetArray;
+		nbitArray   = original.nbitArray;
+		genoType    = (BitSet) original.genoType.clone();
+		phenoType   = original.phenoType.clone();
 	}
 
 	public int bitSizeAt(int i) {
@@ -47,8 +58,25 @@ public class Chromosome implements Cloneable {
 		return v.length == 1 ? v[0] : 0;
 	}
 
+	public double getDouble(int i) {
+		return Double.longBitsToDouble(getLong(i));
+	}
+
+	public double getScaled(int i, double min, double max) {
+		double resolution = Math.pow(2, nbitArray[i]) - 1;
+		return min + getLong(i) / resolution * (max - min);
+	}
+
 	public Object[] getPhenoType() {
-		return phenoType;
+		return phenoType.clone();
+	}
+
+	public Object getPhenoType(int i) {
+		return phenoType[i];
+	}
+
+	public void setPhenoType(int i, Object phenoType) {
+		this.phenoType[i] = phenoType;
 	}
 
 	protected void resetPhenoType() {
@@ -129,21 +157,6 @@ public class Chromosome implements Cloneable {
 		if (this == c)
 			return true;
 		return Arrays.equals(offsetArray, c.offsetArray) && Arrays.equals(nbitArray, c.nbitArray);
-	}
-
-	@Override
-	public Chromosome clone() {
-		try {
-			// shares address: offsetAray, nbitArray
-			// shallow copy: phenoType
-			// deep copy: genoType
-			Chromosome chromosome = (Chromosome) super.clone();
-			chromosome.genoType  = (BitSet) genoType.clone();
-			chromosome.phenoType = phenoType.clone();
-			return chromosome;
-		} catch (CloneNotSupportedException e) {
-			throw new InternalError();
-		}
 	}
 
 	@Override
