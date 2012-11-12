@@ -7,7 +7,7 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	public Individual(Chromosome chromosome) {
 		this.chromosome = chromosome;
 		chromosome.setOnChromosomeChanged(this);
-		clearFitness();
+		fitness = Double.NaN;
 	}
 
 	public Individual(Individual original) {
@@ -28,13 +28,9 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 		this.fitness = fitness;
 	}
 
-	public final void clearFitness() {
-		fitness = Double.NaN;
-	}
-
 	@Override
 	public void onChromosomeChanged() {
-		clearFitness();
+		fitness = Double.NaN;
 	}
 
 	@Override

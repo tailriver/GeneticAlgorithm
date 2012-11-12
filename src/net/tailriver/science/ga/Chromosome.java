@@ -103,7 +103,7 @@ public class Chromosome {
 		}
 	}
 
-	public boolean mutate(Random random, double mutationRate) {
+	public void mutate(Random random, double mutationRate) {
 		if (random == null || Double.isNaN(mutationRate)) {
 			throw new IllegalArgumentException();
 		}
@@ -121,7 +121,6 @@ public class Chromosome {
 		if (changed) {
 			notifyChromosomeChanged();
 		}
-		return changed;
 	}
 
 	public static void swap(Chromosome a, Chromosome b, int fromBit, int toBit) {

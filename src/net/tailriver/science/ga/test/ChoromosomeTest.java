@@ -46,31 +46,26 @@ public class ChoromosomeTest {
 	public void testMutate() {
 		random = new Random(59034);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
-		boolean result;
 	
 		// should not change
 		Chromosome p = new Chromosome(c);
-		result = p.mutate(random, 0);
+		p.mutate(random, 0);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", p.toString());
-		assertFalse(result);
 	
 		// should flip about 3 bits
 		Chromosome q = new Chromosome(c);
-		result = q.mutate(random, 0.1);
+		q.mutate(random, 0.1);
 		assertEquals("0010 0001 0000 0000 0000 0100 0000 0000", q.toString());
-		assertTrue(result);
 	
 		// should flip about half of all bits
 		Chromosome r = new Chromosome(c);
-		result = r.mutate(random, 0.5);
+		r.mutate(random, 0.5);
 		assertEquals("1011 1100 1000 1111 1001 1110 1111 0100", r.toString());
-		assertTrue(result);
 	
 		// should invert all bits
 		Chromosome s = new Chromosome(c);
-		result = s.mutate(random, 1);
+		s.mutate(random, 1);
 		assertEquals("1111 1111 1111 1111 1111 1111 1111 1111", s.toString());
-		assertTrue(result);
 	}
 
 	@Test

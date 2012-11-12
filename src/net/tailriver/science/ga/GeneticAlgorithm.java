@@ -62,13 +62,11 @@ public class GeneticAlgorithm {
 				x = new Individual(x);
 				y = new Individual(y);
 				plan.applyCrossOver(x, y);
-				x.clearFitness();
-				y.clearFitness();
 			}
 			stack.add(x);
 			stack.add(y);
 		}
-	
+
 		int ng = (int) (size * generationGap);
 		Collections.shuffle(population, random);
 		Collections.shuffle(stack, random);
@@ -81,10 +79,7 @@ public class GeneticAlgorithm {
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
 		for (Individual i : population) {
-			boolean changed = i.chromosome.mutate(random, mutationRate);
-			if (changed) {
-				i.clearFitness();
-			}
+			i.chromosome.mutate(random, mutationRate);
 		}
 	}
 
