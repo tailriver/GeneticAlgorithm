@@ -25,6 +25,7 @@ public class GeneticAlgorithm {
 		while (population.size() < size) {
 			Chromosome clone      = new Chromosome(original);
 			Individual individual = plan.inflateIndividual(clone);
+			individual.activateChromosomeWatcher();
 			population.add(individual);
 		}
 	}
@@ -93,8 +94,15 @@ public class GeneticAlgorithm {
 			throw new IllegalStateException();
 		}
 
+		for (Individual i : population) {
+			i.deactivateChromosomeWatcher();
+		}
 		population.clear();
-		population.addAll(nextGeneration);
+
+		for (Individual i : nextGeneration) {
+			i.activateChromosomeWatcher();
+			population.add(i);
+		}
 		nextGeneration.clear();
 		sorted = false;
 	}

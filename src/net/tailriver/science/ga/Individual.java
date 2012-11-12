@@ -6,13 +6,11 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 
 	public Individual(Chromosome chromosome) {
 		this.chromosome = chromosome;
-		chromosome.setOnChromosomeChanged(this);
-		fitness = Double.NaN;
+		fitness         = Double.NaN;
 	}
 
 	public Individual(Individual original) {
 		chromosome = new Chromosome(original.chromosome);
-		chromosome.setOnChromosomeChanged(this);
 		fitness    = original.fitness;
 	}
 
@@ -26,6 +24,14 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 
 	public final void setFitness(double fitness) {
 		this.fitness = fitness;
+	}
+
+	public void activateChromosomeWatcher() {
+		chromosome.setOnChromosomeChanged(this);
+	}
+
+	public void deactivateChromosomeWatcher() {
+		chromosome.setOnChromosomeChanged(null);
 	}
 
 	@Override
