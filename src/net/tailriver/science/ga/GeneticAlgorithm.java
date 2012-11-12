@@ -15,7 +15,6 @@ public class GeneticAlgorithm {
 	private final int size;
 	private boolean reverseOrder;
 	private boolean sorted;
-	private boolean calculateFitnessOneByOne;
 
 	public GeneticAlgorithm(GeneticAlgorithmPlan plan, int size) {
 		this.plan = plan;
@@ -29,10 +28,6 @@ public class GeneticAlgorithm {
 			individual.activateChromosomeWatcher();
 			population.add(individual);
 		}
-	}
-
-	public void setCalculateFitnessOneByOne(boolean oneByOne) {
-		calculateFitnessOneByOne = oneByOne;
 	}
 
 	public void setReverseOrder(boolean reverseOrder) {
@@ -116,22 +111,13 @@ public class GeneticAlgorithm {
 			return;
 		}
 
-		if (calculateFitnessOneByOne) {
-			for (Individual individual : population) {
-				if (!individual.hasFitness()) {
-					double fitness = plan.calculateFitness(individual.chromosome);
-					individual.setFitness(fitness);
-				}
+		Collection<Individual> todo = new HashSet<>();
+		for (Individual individual : population) {
+			if (!individual.hasFitness()) {
+				todo.add(individual);
 			}
-		} else {
-			Collection<Individual> todo = new HashSet<>();
-			for (Individual individual : population) {
-				if (!individual.hasFitness()) {
-					todo.add(individual);
-				}
-			}
-			plan.calculateFitness(todo);
 		}
+		plan.calculateFitness(todo);
 
 		if (reverseOrder) {
 			Collections.sort(population, Collections.reverseOrder());

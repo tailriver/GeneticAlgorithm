@@ -11,8 +11,6 @@ public interface GeneticAlgorithmPlan {
 
 	Random getRandom();
 
-	double calculateFitness(final Chromosome chromosomes);
-
 	void calculateFitness(Collection<Individual> population);
 
 	void applyCrossOver(Individual x, Individual y);

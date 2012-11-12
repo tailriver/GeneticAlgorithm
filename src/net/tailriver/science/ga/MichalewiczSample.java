@@ -39,11 +39,6 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 	}
 
 	@Override
-	public double calculateFitness(final Chromosome chromosome) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
 			final Chromosome c = individual.chromosome;
