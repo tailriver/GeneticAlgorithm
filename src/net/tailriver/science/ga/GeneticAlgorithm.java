@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -12,7 +13,7 @@ public class GeneticAlgorithm {
 	private final GeneticAlgorithmPlan plan;
 	private final List<Individual> population;
 	private final int size;
-	private boolean reverseOrder;
+	private Comparator<? super Individual> comparator;
 	private boolean sorted;
 
 	public GeneticAlgorithm(GeneticAlgorithmPlan plan, int size) {
@@ -27,11 +28,13 @@ public class GeneticAlgorithm {
 		}
 	}
 
+	public void setComparator(Comparator<? super Individual> comparator) {
+		this.comparator = comparator;
+		sorted = false;
+	}
+
 	public void setReverseOrder(boolean reverseOrder) {
-		if (this.reverseOrder != reverseOrder) {
-			this.reverseOrder = reverseOrder;
-			sorted = false;
-		}
+		setComparator(reverseOrder ? Collections.reverseOrder() : null);
 	}
 
 	public Individual getRankAt(int rank) {
@@ -115,12 +118,9 @@ public class GeneticAlgorithm {
 			}
 		}
 		plan.calculateFitness(todo);
-
-		if (reverseOrder) {
-			Collections.sort(population, Collections.reverseOrder());
-		} else {
-			Collections.sort(population);
 		}
+
+		Collections.sort(population, comparator);
 		sorted = true;
 	}
 
