@@ -31,7 +31,7 @@ public class ChoromosomeTest {
 		c = new Chromosome.Creator().append(8, 1).append(34, 1).inflate();
 
 		c.randomize(random);
-		assertEquals(42, c.bitSizeTotal());
+		assertEquals(42, c.bitLength);
 		assertEquals("10111001 0101001101111101000111010011101101",
 				c.toString());
 		assertEquals(185, c.getLong(0));
@@ -92,7 +92,7 @@ public class ChoromosomeTest {
 	public void testCopy() {
 		Chromosome copy = new Chromosome(c);
 		assertNotSame(c, copy);
-		assertEquals(c.bitSizeTotal(), copy.bitSizeTotal());
+		assertEquals(c.bitLength, copy.bitLength);
 		assertEquals(c.toString(), copy.toString());
 
 		c.randomize(random);

@@ -7,19 +7,20 @@ import java.util.List;
 import java.util.Random;
 
 public class Chromosome {
+	public final int bitLength;
+	public final Object[] phenoType;
+
 	private final int[] offsetArray;
 	private final int[] nbitArray;
 	private final BitSet genoType;
-	private final Object[] phenoType;
-	private final int bitSize;
 	private ChromosomeWatcher watcher;
 
 	protected Chromosome(List<Integer> offsetList, List<Integer> nbitList) {
 		int size = offsetList.size();
-		bitSize = offsetList.get(size - 1) + nbitList.get(size - 1);
+		bitLength = offsetList.get(size - 1) + nbitList.get(size - 1);
 		offsetArray = new int[size];
 		nbitArray = new int[size];
-		genoType = new BitSet(bitSize);
+		genoType = new BitSet(bitLength);
 		phenoType = new Object[size];
 		for (int i = 0; i < size; i++) {
 			offsetArray[i] = offsetList.get(i);
@@ -31,7 +32,7 @@ public class Chromosome {
 	// shallow copy: phenoType
 	// deep copy: genoType
 	public Chromosome(Chromosome original) {
-		bitSize = original.bitSize;
+		bitLength = original.bitLength;
 		offsetArray = original.offsetArray;
 		nbitArray = original.nbitArray;
 		genoType = (BitSet) original.genoType.clone();
@@ -40,10 +41,6 @@ public class Chromosome {
 
 	public int bitSizeAt(int i) {
 		return nbitArray[i];
-	}
-
-	public int bitSizeTotal() {
-		return bitSize;
 	}
 
 	public BitSet getBitSet(int i) {
@@ -68,24 +65,12 @@ public class Chromosome {
 		return min + getLong(i) / resolution * (max - min);
 	}
 
-	public Object[] getPhenoType() {
-		return phenoType.clone();
-	}
-
-	public Object getPhenoType(int i) {
-		return phenoType[i];
-	}
-
-	public void setPhenoType(int i, Object phenoType) {
-		this.phenoType[i] = phenoType;
-	}
-
 	public void setOnChromosomeChanged(ChromosomeWatcher watcher) {
 		this.watcher = watcher;
 	}
 
 	protected void notifyChromosomeChanged() {
-		for (int i = 0, max = phenoType.length; i < max; i++) {
+		for (int i = 0; i < phenoType.length; i++) {
 			phenoType[i] = null;
 		}
 		if (watcher != null) {
@@ -98,7 +83,7 @@ public class Chromosome {
 			throw new IllegalArgumentException();
 		}
 
-		for (int i = 0; i < bitSize; i++) {
+		for (int i = 0; i < bitLength; i++) {
 			genoType.set(i, random.nextBoolean());
 		}
 	}
@@ -112,7 +97,7 @@ public class Chromosome {
 		}
 
 		boolean changed = false;
-		for (int i = 0; i < bitSize; i++) {
+		for (int i = 0; i < bitLength; i++) {
 			if (random.nextDouble() < mutationRate) {
 				genoType.flip(i);
 				changed = true;
@@ -128,7 +113,7 @@ public class Chromosome {
 				|| mask == null) {
 			throw new IllegalArgumentException();
 		}
-		for (int i = 0, max = a.bitSize; i < max; i++) {
+		for (int i = 0, max = a.bitLength; i < max; i++) {
 			if (mask.get(i)) {
 				boolean temp = a.genoType.get(i);
 				a.genoType.set(i, b.genoType.get(i));

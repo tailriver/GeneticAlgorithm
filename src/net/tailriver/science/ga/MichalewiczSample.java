@@ -43,7 +43,7 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 		for (Individual individual : population) {
 			final Chromosome c = individual.chromosome;
 			double x = c.getScaled(0, -1, 2);
-			c.setPhenoType(0, Double.valueOf(x));
+			c.phenoType[0] = x;
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;
 			individual.setFitness(fitness);
 		}
