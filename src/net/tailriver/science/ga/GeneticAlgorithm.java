@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Random;
 
 public class GeneticAlgorithm {
-	private GeneticAlgorithmPlan plan;
-	private List<Individual> population;
-	private int size;
+	private final GeneticAlgorithmPlan plan;
+	private final List<Individual> population;
+	private final int size;
 	private boolean reverseOrder;
 	private boolean sorted;
 	private boolean calculateFitnessOneByOne;

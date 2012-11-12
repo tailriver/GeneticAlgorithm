@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Random;
 
 public class Chromosome {
-	private int[] offsetArray;
-	private int[] nbitArray;
-	private BitSet genoType;
-	private Object[] phenoType;
-	private int bitSize;
+	private final int[] offsetArray;
+	private final int[] nbitArray;
+	private final BitSet genoType;
+	private final Object[] phenoType;
+	private final int bitSize;
 	private ChromosomeWatcher watcher;
 
 	protected Chromosome(List<Integer> offsetList, List<Integer> nbitList) {
