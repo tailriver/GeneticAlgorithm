@@ -1,9 +1,11 @@
 package net.tailriver.science.ga.test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.BitSet;
 import java.util.Random;
@@ -31,6 +33,7 @@ public class ChoromosomeTest {
 		c = new Chromosome.Creator().append(8, 1).append(34, 1).inflate();
 
 		c.randomize(random);
+		assertEquals(2, c.phenoType.length);
 		assertEquals(42, c.bitLength);
 		assertEquals("10111001 0101001101111101000111010011101101",
 				c.toString());
@@ -92,7 +95,10 @@ public class ChoromosomeTest {
 	public void testCopy() {
 		Chromosome copy = new Chromosome(c);
 		assertNotSame(c, copy);
-		assertEquals(c.bitLength, copy.bitLength);
+		assertTrue(c.equals(copy));
+		assertTrue(c.equalsSchema(copy));
+		assertNotSame(c.phenoType, copy.phenoType);
+		assertArrayEquals(c.phenoType, copy.phenoType);
 		assertEquals(c.toString(), copy.toString());
 
 		c.randomize(random);
@@ -103,12 +109,16 @@ public class ChoromosomeTest {
 	public void testCreator() {
 		Chromosome.Creator creator = new Chromosome.Creator();
 		assertNotNull(creator);
-		assertNotNull(c);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreatorNothingAppended() {
+		new Chromosome.Creator().inflate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorAppendInvaild1() {
-		new Chromosome.Creator().append(0, 1);
+		new Chromosome.Creator().append(0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -117,11 +127,16 @@ public class ChoromosomeTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
+	public void testCreatorAppendInvaild3() {
+		new Chromosome.Creator().append(0, 1);
+	}
+
+	@Test(expected = NullPointerException.class)
 	public void testRandomizeInvalidRandom() {
 		c.randomize(null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = NullPointerException.class)
 	public void testMutateInvalidRandom() {
 		c.mutate(null, 0.5);
 	}
@@ -155,7 +170,7 @@ public class ChoromosomeTest {
 		Chromosome.swap(c, c, mask);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = NullPointerException.class)
 	public void testSwapInvalidMask() {
 		Chromosome a = new Chromosome(c);
 		Chromosome b = new Chromosome(c);
