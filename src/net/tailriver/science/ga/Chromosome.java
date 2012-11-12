@@ -12,6 +12,7 @@ public class Chromosome {
 	private BitSet genoType;
 	private Object[] phenoType;
 	private int bitSize;
+	private ChromosomeWatcher watcher;
 
 	protected Chromosome(List<Integer> offsetList, List<Integer> nbitList) {
 		int size = offsetList.size();
@@ -79,9 +80,16 @@ public class Chromosome {
 		this.phenoType[i] = phenoType;
 	}
 
-	protected void resetPhenoType() {
+	public void setOnChromosomeChanged(ChromosomeWatcher watcher) {
+		this.watcher = watcher;
+	}
+
+	protected void notifyChromosomeChanged() {
 		for (int i = 0, max = phenoType.length; i < max; i++) {
 			phenoType[i] = null;
+		}
+		if (watcher != null) {
+			watcher.onChromosomeChanged();
 		}
 	}
 
@@ -111,7 +119,7 @@ public class Chromosome {
 			}
 		}
 		if (changed) {
-			resetPhenoType();
+			notifyChromosomeChanged();
 		}
 		return changed;
 	}
@@ -129,8 +137,8 @@ public class Chromosome {
 			a.genoType.set(i, b.genoType.get(i));
 			b.genoType.set(i, temp);
 		}
-		a.resetPhenoType();
-		b.resetPhenoType();
+		a.notifyChromosomeChanged();
+		b.notifyChromosomeChanged();
 	}
 
 	@Override
