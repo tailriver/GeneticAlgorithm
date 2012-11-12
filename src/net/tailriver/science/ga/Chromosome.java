@@ -123,18 +123,16 @@ public class Chromosome {
 		}
 	}
 
-	public static void swap(Chromosome a, Chromosome b, int fromBit, int toBit) {
-		if (a == null || b == null || a == b || !a.equalsSchema(b)) {
+	public static void swap(Chromosome a, Chromosome b, BitSet mask) {
+		if (a == null || b == null || a == b || !a.equalsSchema(b) || mask == null) {
 			throw new IllegalArgumentException();
 		}
-		if (fromBit < 0 || fromBit >= a.bitSize || toBit > a.bitSize || fromBit > toBit) {
-			throw new IndexOutOfBoundsException();
-		}
-
-		for (int i = fromBit; i < toBit; i++) {
-			boolean temp = a.genoType.get(i);
-			a.genoType.set(i, b.genoType.get(i));
-			b.genoType.set(i, temp);
+		for (int i = 0, max = a.bitSize; i < max; i++) {
+			if (mask.get(i)) {
+				boolean temp = a.genoType.get(i);
+				a.genoType.set(i, b.genoType.get(i));
+				b.genoType.set(i, temp);
+			}
 		}
 		a.notifyChromosomeChanged();
 		b.notifyChromosomeChanged();

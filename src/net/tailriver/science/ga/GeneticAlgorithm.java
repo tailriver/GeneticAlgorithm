@@ -2,6 +2,7 @@ package net.tailriver.science.ga;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -149,23 +150,27 @@ public class GeneticAlgorithm {
 	public final static void crossOverSinglePoint(Individual x, Individual y, Random random) {
 		int max = x.chromosome.bitSizeTotal();
 		int p = random.nextInt(max);
-		Chromosome.swap(x.chromosome, y.chromosome, p, max);
+		BitSet mask = new BitSet();
+		mask.set(p, max, true);
+		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
 	public final static void crossOverTwoPoint(Individual x, Individual y, Random random) {
 		int max = x.chromosome.bitSizeTotal();
 		int p = random.nextInt(max);
 		int q = random.nextInt(max);
-		Chromosome.swap(x.chromosome, y.chromosome, Math.min(p, q), Math.max(p, q));
+		BitSet mask = new BitSet();
+		mask.set(Math.min(p, q), Math.max(p, q), true);
+		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
 	public static final void crossOverUniform(Individual x, Individual y, Random random) {
 		int max = x.chromosome.bitSizeTotal();
+		BitSet mask = new BitSet();
 		for (int i = 0; i < max; i++) {
-			if (random.nextBoolean()) {
-				Chromosome.swap(x.chromosome, y.chromosome, i, i);
-			}
+			mask.set(i, random.nextBoolean());
 		}
+		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
 	public static final List<Individual> selectElite(List<Individual> candidates, int n) {

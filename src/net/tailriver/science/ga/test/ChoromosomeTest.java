@@ -2,6 +2,7 @@ package net.tailriver.science.ga.test;
 
 import static org.junit.Assert.*;
 
+import java.util.BitSet;
 import java.util.Random;
 
 import net.tailriver.science.ga.Chromosome;
@@ -11,11 +12,13 @@ import org.junit.*;
 public class ChoromosomeTest {
 	Chromosome c;
 	Random random;
+	BitSet mask;
 
 	@Before
 	public void setUp() {
 		c = new Chromosome.Creator().append(4, 8).inflate();
 		random = new Random();
+		mask = new BitSet();
 	}
 
 	@Test
@@ -77,7 +80,8 @@ public class ChoromosomeTest {
 		b.randomize(random);
 		assertEquals("1110 0001 0101 1000 1011 1111 1101 1111", a.toString());
 		assertEquals("1110 0101 1100 0101 0011 1011 0011 0010", b.toString());
-		Chromosome.swap(a, b, 6, 22);
+		mask.set(6, 22, true);
+		Chromosome.swap(a, b, mask);
 		assertEquals("1110 0101 1100 0101 0011 1111 1101 1111", a.toString());
 		assertEquals("1110 0001 0101 1000 1011 1011 0011 0010", b.toString());
 	}
@@ -139,31 +143,20 @@ public class ChoromosomeTest {
 	public void testSwapIncompatibleChoromosome() {
 		Chromosome a = new Chromosome.Creator().append(4, 8).inflate();
 		Chromosome b = new Chromosome.Creator().append(4, 9).inflate();
-		Chromosome.swap(a, b, 0, 1);
+		mask.set(0, 1, true);
+		Chromosome.swap(a, b, mask);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testSwapSameAddressChromosome() {
-		Chromosome.swap(c, c, 0, 1);		
+		mask.set(0, 1, true);
+		Chromosome.swap(c, c, mask);
 	}
 
-	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSwapOutOfBounds1() {
-		Chromosome.swap(new Chromosome(c), new Chromosome(c), -1, 0);
-	}
-
-	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSwapOutOfBounds2() {
-		Chromosome.swap(new Chromosome(c), new Chromosome(c), 0, c.bitSizeTotal() + 1);
-	}
-
-	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSwapOutOfBounds3() {
-		Chromosome.swap(new Chromosome(c), new Chromosome(c), c.bitSizeTotal(), c.bitSizeTotal());
-	}
-
-	@Test(expected=IndexOutOfBoundsException.class)
-	public void testSwapOutOfBounds4() {
-		Chromosome.swap(new Chromosome(c), new Chromosome(c), 1, 0);
+	@Test(expected=IllegalArgumentException.class)
+	public void testSwapInvalidMask() {
+		Chromosome a = new Chromosome(c);
+		Chromosome b = new Chromosome(c);
+		Chromosome.swap(a, b, null);
 	}
 }
