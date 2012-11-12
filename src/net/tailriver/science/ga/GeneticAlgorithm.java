@@ -37,9 +37,23 @@ public class GeneticAlgorithm {
 		setComparator(reverseOrder ? Collections.reverseOrder() : null);
 	}
 
+	/**
+	 * Returns specified rank in population.
+	 * 
+	 * This method uses sort function internally. You may need to be careful
+	 * with the position to call from performance point of view. The best
+	 * position will be before {@link #select()}.
+	 * 
+	 * @param rank
+	 *            BE CAREFUL. It starts from <em>ONE</em>.
+	 * @return copy of {@link Individual} at specified {@code rank}.
+	 * @throws IndexOutOfBoundsException
+	 *             if {@code rank} is less than 1 or greater than number of
+	 *             population.
+	 */
 	public Individual getRankAt(int rank) {
 		sort();
-		return new Individual(population.get(rank));
+		return new Individual(population.get(rank - 1));
 	}
 
 	public void cross(double crossoverRate, double generationGap) {
