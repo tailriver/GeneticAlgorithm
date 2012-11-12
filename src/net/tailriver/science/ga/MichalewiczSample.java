@@ -7,13 +7,16 @@ import java.util.Random;
 
 /**
  * Solves Michalewicz sample.
+ * 
  * <h3>Bibliography</h3>
  * <ul>
- *  <li>M. Sakawa and M. Tanaka: <i>"Genetic Algorithms" (in Japanese)</i>,
- *   Asakura Publishing, ISBN 978-4-254-20990-7 (1995)</li>
- *  <li>Z. Michalewicz: <i>"Genetic Algorithms + Data Structures + Evolution Programs"</i>,
- *   Springer-Verlag (1992). (above book was cited from this)</li>
+ * <li>M. Sakawa and M. Tanaka: <i>"Genetic Algorithms" (in Japanese)</i>,
+ * Asakura Publishing, ISBN 978-4-254-20990-7 (1995)</li>
+ * <li>Z. Michalewicz:
+ * <i>"Genetic Algorithms + Data Structures + Evolution Programs"</i>,
+ * Springer-Verlag (1992). (above book was cited from this)</li>
  * </ul>
+ * 
  * @author tailriver
  */
 public class MichalewiczSample implements GeneticAlgorithmPlan {
@@ -21,9 +24,7 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 
 	@Override
 	public Chromosome inflateChromosome() {
-		return new Chromosome.Creator()
-		.append(22, 1)
-		.inflate();
+		return new Chromosome.Creator().append(22, 1).inflate();
 	}
 
 	@Override
@@ -61,8 +62,9 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 	@Override
 	public List<Individual> applySelection(List<Individual> candidates) {
 		List<Individual> winner = new ArrayList<>();
-		winner.addAll( GeneticAlgorithm.selectElite(candidates, 5) );
-		winner.addAll( GeneticAlgorithm.selectTournament(candidates, random, 45, 2) );
+		winner.addAll(GeneticAlgorithm.selectElite(candidates, 5));
+		winner.addAll(GeneticAlgorithm.selectTournament(candidates, random, 45,
+				2));
 		return winner;
 	}
 

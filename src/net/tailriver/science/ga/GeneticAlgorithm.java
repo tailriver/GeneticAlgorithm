@@ -18,13 +18,13 @@ public class GeneticAlgorithm {
 	private boolean calculateFitnessOneByOne;
 
 	public GeneticAlgorithm(GeneticAlgorithmPlan plan, int size) {
-		this.plan  = plan;
-		this.size  = size;
+		this.plan = plan;
+		this.size = size;
 		population = new ArrayList<>();
 
 		Chromosome original = plan.inflateChromosome();
 		while (population.size() < size) {
-			Chromosome clone      = new Chromosome(original);
+			Chromosome clone = new Chromosome(original);
 			Individual individual = plan.inflateIndividual(clone);
 			individual.activateChromosomeWatcher();
 			population.add(individual);
@@ -48,13 +48,15 @@ public class GeneticAlgorithm {
 	}
 
 	public void cross(double crossoverRate, double generationGap) {
-		if (Double.isNaN(crossoverRate) || crossoverRate < 0 || crossoverRate > 1) {
+		if (Double.isNaN(crossoverRate) || crossoverRate < 0
+				|| crossoverRate > 1) {
 			throw new IllegalArgumentException("out of range: " + crossoverRate);
 		}
-		if (Double.isNaN(generationGap) || generationGap < 0 || generationGap > 1) {
+		if (Double.isNaN(generationGap) || generationGap < 0
+				|| generationGap > 1) {
 			throw new IllegalArgumentException("out of range: " + generationGap);
 		}
-	
+
 		Random random = plan.getRandom();
 		List<Individual> stack = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
@@ -75,7 +77,7 @@ public class GeneticAlgorithm {
 		population.subList(0, ng).clear();
 		population.addAll(stack.subList(0, ng));
 		sorted = false;
-		
+
 	}
 
 	public void mutate(double mutationRate) {
@@ -89,7 +91,8 @@ public class GeneticAlgorithm {
 		sort();
 		Collection<Individual> nextGeneration = new HashSet<>();
 		for (Individual w : plan.applySelection(population)) {
-			nextGeneration.add( nextGeneration.contains(w) ? new Individual(w) : w);
+			nextGeneration.add(nextGeneration.contains(w) ? new Individual(w)
+					: w);
 		}
 		if (nextGeneration.size() != size) {
 			throw new IllegalStateException();
@@ -140,14 +143,15 @@ public class GeneticAlgorithm {
 
 	@Override
 	public String toString() {
-		StringBuilder sb =  new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		for (Individual i : population) {
 			sb.append(i).append('\n');
 		}
 		return sb.toString();
 	}
 
-	public final static void crossOverSinglePoint(Individual x, Individual y, Random random) {
+	public final static void crossOverSinglePoint(Individual x, Individual y,
+			Random random) {
 		int max = x.chromosome.bitSizeTotal();
 		int p = random.nextInt(max);
 		BitSet mask = new BitSet();
@@ -155,7 +159,8 @@ public class GeneticAlgorithm {
 		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
-	public final static void crossOverTwoPoint(Individual x, Individual y, Random random) {
+	public final static void crossOverTwoPoint(Individual x, Individual y,
+			Random random) {
 		int max = x.chromosome.bitSizeTotal();
 		int p = random.nextInt(max);
 		int q = random.nextInt(max);
@@ -164,7 +169,8 @@ public class GeneticAlgorithm {
 		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
-	public static final void crossOverUniform(Individual x, Individual y, Random random) {
+	public static final void crossOverUniform(Individual x, Individual y,
+			Random random) {
 		int max = x.chromosome.bitSizeTotal();
 		BitSet mask = new BitSet();
 		for (int i = 0; i < max; i++) {
@@ -173,20 +179,21 @@ public class GeneticAlgorithm {
 		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
-	public static final List<Individual> selectElite(List<Individual> candidates, int n) {
+	public static final List<Individual> selectElite(
+			List<Individual> candidates, int n) {
 		if (n < 1 || n > candidates.size()) {
 			throw new IllegalArgumentException();
 		}
 		return candidates.subList(0, n);
 	}
 
-	public static final List<Individual> selectTournament(List<Individual> candidates,
-			Random random, int n, int k) {
+	public static final List<Individual> selectTournament(
+			List<Individual> candidates, Random random, int n, int k) {
 		int size = candidates.size();
 		if (n < 1 || k < 2 || n > size) {
 			throw new IllegalArgumentException();
 		}
-	
+
 		List<Individual> winner = new ArrayList<>();
 		for (int i = 0; i < n; i++) {
 			int m = random.nextInt(size);
@@ -201,6 +208,7 @@ public class GeneticAlgorithm {
 	public static void printIndividual(Individual individual) {
 		System.out.println(individual);
 		System.out.println(individual.chromosome);
-		System.out.println(Arrays.deepToString(individual.chromosome.getPhenoType()));		
+		System.out.println(Arrays.deepToString(individual.chromosome
+				.getPhenoType()));
 	}
 }

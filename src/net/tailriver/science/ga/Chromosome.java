@@ -16,14 +16,14 @@ public class Chromosome {
 
 	protected Chromosome(List<Integer> offsetList, List<Integer> nbitList) {
 		int size = offsetList.size();
-		bitSize     = offsetList.get(size-1) + nbitList.get(size-1);
+		bitSize = offsetList.get(size - 1) + nbitList.get(size - 1);
 		offsetArray = new int[size];
-		nbitArray   = new int[size];
-		genoType    = new BitSet(bitSize);
-		phenoType   = new Object[size];
+		nbitArray = new int[size];
+		genoType = new BitSet(bitSize);
+		phenoType = new Object[size];
 		for (int i = 0; i < size; i++) {
 			offsetArray[i] = offsetList.get(i);
-			nbitArray[i]   = nbitList.get(i);
+			nbitArray[i] = nbitList.get(i);
 		}
 	}
 
@@ -31,11 +31,11 @@ public class Chromosome {
 	// shallow copy: phenoType
 	// deep copy: genoType
 	public Chromosome(Chromosome original) {
-		bitSize     = original.bitSize;
+		bitSize = original.bitSize;
 		offsetArray = original.offsetArray;
-		nbitArray   = original.nbitArray;
-		genoType    = (BitSet) original.genoType.clone();
-		phenoType   = original.phenoType.clone();
+		nbitArray = original.nbitArray;
+		genoType = (BitSet) original.genoType.clone();
+		phenoType = original.phenoType.clone();
 	}
 
 	public int bitSizeAt(int i) {
@@ -124,7 +124,8 @@ public class Chromosome {
 	}
 
 	public static void swap(Chromosome a, Chromosome b, BitSet mask) {
-		if (a == null || b == null || a == b || !a.equalsSchema(b) || mask == null) {
+		if (a == null || b == null || a == b || !a.equalsSchema(b)
+				|| mask == null) {
 			throw new IllegalArgumentException();
 		}
 		for (int i = 0, max = a.bitSize; i < max; i++) {
@@ -151,9 +152,8 @@ public class Chromosome {
 			return false;
 		if (obj instanceof Chromosome) {
 			Chromosome c = (Chromosome) obj;
-			return hashCode() == c.hashCode() &&
-					genoType.equals(c.genoType) && Arrays.equals(phenoType, c.phenoType) &&
-					equalsSchema(c);
+			return hashCode() == c.hashCode() && genoType.equals(c.genoType)
+					&& Arrays.equals(phenoType, c.phenoType) && equalsSchema(c);
 		}
 		return false;
 	}
@@ -161,7 +161,8 @@ public class Chromosome {
 	public boolean equalsSchema(Chromosome c) {
 		if (this == c)
 			return true;
-		return Arrays.equals(offsetArray, c.offsetArray) && Arrays.equals(nbitArray, c.nbitArray);
+		return Arrays.equals(offsetArray, c.offsetArray)
+				&& Arrays.equals(nbitArray, c.nbitArray);
 	}
 
 	@Override
@@ -172,7 +173,7 @@ public class Chromosome {
 			int length = nbitArray[i];
 			long[] array = getBitSet(i).toLongArray();
 			if (array.length == 0) {
-				array = new long[]{0};
+				array = new long[] { 0 };
 			}
 			for (long l : array) {
 				String binary = Long.toBinaryString(l);
@@ -183,12 +184,13 @@ public class Chromosome {
 			}
 			sb.append(delimiter);
 		}
-		return sb.delete(sb.length() - delimiter.length(), sb.length()).toString();
+		return sb.delete(sb.length() - delimiter.length(), sb.length())
+				.toString();
 	}
 
 	public static class Creator {
 		private List<Integer> indexList = new ArrayList<>();
-		private List<Integer> nbitList  = new ArrayList<>();
+		private List<Integer> nbitList = new ArrayList<>();
 		private int head = 0;
 
 		public Creator append(int nbit, int count) {

@@ -6,12 +6,12 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 
 	public Individual(Chromosome chromosome) {
 		this.chromosome = chromosome;
-		fitness         = Double.NaN;
+		fitness = Double.NaN;
 	}
 
 	public Individual(Individual original) {
 		chromosome = new Chromosome(original.chromosome);
-		fitness    = original.fitness;
+		fitness = original.fitness;
 	}
 
 	public final boolean hasFitness() {
@@ -60,8 +60,7 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	@Override
 	public String toString() {
 		return new StringBuilder()
-		.append(Integer.toHexString(chromosome.hashCode())).append("#")
-		.append(fitness)
-		.toString();
+				.append(Integer.toHexString(chromosome.hashCode())).append("#")
+				.append(fitness).toString();
 	}
 }
