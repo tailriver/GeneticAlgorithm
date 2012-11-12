@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 public interface GeneticAlgorithmPlan {
-	Chromosome inflateChromosome();
-
-	Individual inflateIndividual(Chromosome chromosome);
+	Individual inflateIndividual();
 
 	Random getRandom();
 

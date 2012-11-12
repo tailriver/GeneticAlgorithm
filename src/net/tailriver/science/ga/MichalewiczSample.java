@@ -23,12 +23,8 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 	private Random random = new Random();
 
 	@Override
-	public Chromosome inflateChromosome() {
-		return new Chromosome.Creator().append(22, 1).inflate();
-	}
-
-	@Override
-	public Individual inflateIndividual(Chromosome chromosome) {
+	public Individual inflateIndividual() {
+		Chromosome chromosome = new Chromosome.Creator().append(22).inflate();
 		chromosome.randomize(random);
 		return new Individual(chromosome);
 	}
@@ -65,21 +61,21 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 
 	public static void main(String... args) {
 		Individual best = null;
-		GeneticAlgorithm pop = new GeneticAlgorithm(new MichalewiczSample(), 50);
-		pop.setReverseOrder(true);
+		GeneticAlgorithm ga = new GeneticAlgorithm(new MichalewiczSample(), 50);
+		ga.setReverseOrder(true);
 		for (int generation = 0; generation < 10000; generation++) {
-			pop.cross(0.25, 1);
-			pop.mutate(0.1);
+			ga.cross(0.25, 1);
+			ga.mutate(0.1);
 
-			Individual generationTop = pop.getRankAt(0);
+			Individual generationTop = ga.getRankAt(1);
 			if (best == null || generationTop.compareTo(best) > 0) {
 				best = generationTop;
 				System.out.println(">> " + generation);
-				GeneticAlgorithm.printIndividual(best);
+				best.print();
 				System.out.println();
 			}
 
-			pop.select();
+			ga.select();
 		}
 	}
 }

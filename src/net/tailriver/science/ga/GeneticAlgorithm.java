@@ -21,10 +21,8 @@ public class GeneticAlgorithm {
 		this.size = size;
 		population = new ArrayList<>();
 
-		Chromosome original = plan.inflateChromosome();
 		while (population.size() < size) {
-			Chromosome clone = new Chromosome(original);
-			Individual individual = plan.inflateIndividual(clone);
+			Individual individual = plan.inflateIndividual();
 			individual.activateChromosomeWatcher();
 			population.add(individual);
 		}
