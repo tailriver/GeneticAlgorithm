@@ -1,16 +1,18 @@
 package net.tailriver.science.ga;
 
-public class Individual implements Comparable<Individual> {
+public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	public final Chromosome chromosome;
 	private double fitness;
 
 	public Individual(Chromosome chromosome) {
 		this.chromosome = chromosome;
+		chromosome.setOnChromosomeChanged(this);
 		clearFitness();
 	}
 
 	public Individual(Individual original) {
 		chromosome = new Chromosome(original.chromosome);
+		chromosome.setOnChromosomeChanged(this);
 		fitness    = original.fitness;
 	}
 
@@ -28,6 +30,11 @@ public class Individual implements Comparable<Individual> {
 
 	public final void clearFitness() {
 		fitness = Double.NaN;
+	}
+
+	@Override
+	public void onChromosomeChanged() {
+		clearFitness();
 	}
 
 	@Override
