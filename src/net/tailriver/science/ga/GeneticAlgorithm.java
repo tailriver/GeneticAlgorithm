@@ -56,15 +56,32 @@ public class GeneticAlgorithm {
 		return new Individual(population.get(rank - 1));
 	}
 
+	/**
+	 * 
+	 * @param crossoverRate
+	 * @param generationGap
+	 * @throws IllegalArgumentException
+	 *             if arguments contain NaN.
+	 * @throws IndexOutOfBoundsException
+	 *             if arguments are less than 0 or greater than 1.
+	 */
 	public void cross(double crossoverRate, double generationGap) {
-		if (Double.isNaN(crossoverRate) || crossoverRate < 0
-				|| crossoverRate > 1) {
-			throw new IllegalArgumentException("out of range: " + crossoverRate);
-		}
-		if (Double.isNaN(generationGap) || generationGap < 0
-				|| generationGap > 1) {
-			throw new IllegalArgumentException("out of range: " + generationGap);
-		}
+		if (Double.isNaN(crossoverRate))
+			throw new IllegalArgumentException("crossoverRate is NaN");
+		if (crossoverRate < 0)
+			throw new IndexOutOfBoundsException("crossoverRate < 0: "
+					+ crossoverRate);
+		if (crossoverRate > 1)
+			throw new IndexOutOfBoundsException("crossoverRate > 1: "
+					+ crossoverRate);
+		if (Double.isNaN(generationGap))
+			throw new IllegalArgumentException("generationGap is NaN");
+		if (generationGap < 0)
+			throw new IndexOutOfBoundsException("generationGap < 0: "
+					+ generationGap);
+		if (generationGap > 1)
+			throw new IndexOutOfBoundsException("generationGap > 1: "
+					+ generationGap);
 
 		Random random = plan.getRandom();
 		List<Individual> stack = new ArrayList<>();
@@ -88,6 +105,13 @@ public class GeneticAlgorithm {
 		sorted = false;
 	}
 
+	/**
+	 * 
+	 * @param mutationRate
+	 * @throws NullPointerException
+	 * @throws IllegalArgumentException
+	 * @throws IndexOutOfBoundsException
+	 */
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
 		for (Individual i : population) {
@@ -118,6 +142,12 @@ public class GeneticAlgorithm {
 		sorted = false;
 	}
 
+	/**
+	 * @throws IllegalStateException
+	 *             if fitness of individual is still invalid after
+	 *             {@link GeneticAlgorithmPlan#calculateFitness(Collection)}
+	 *             called.
+	 */
 	private void sort() {
 		if (sorted) {
 			return;
@@ -130,6 +160,10 @@ public class GeneticAlgorithm {
 			}
 		}
 		plan.calculateFitness(todo);
+		for (Individual individual : todo) {
+			if (!individual.hasFitness())
+				throw new IllegalStateException("fitness is NaN: "
+						+ individual.toString());
 		}
 
 		Collections.sort(population, comparator);
@@ -145,6 +179,17 @@ public class GeneticAlgorithm {
 		return sb.toString();
 	}
 
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param random
+	 * @throws NullPointerException
+	 *             if arguments contain null.
+	 * @throws IllegalArgumentException
+	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             address, or they are incompatible.
+	 */
 	public final static void crossOverSinglePoint(Individual x, Individual y,
 			Random random) {
 		int max = x.chromosome.bitLength;
@@ -154,6 +199,17 @@ public class GeneticAlgorithm {
 		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param random
+	 * @throws NullPointerException
+	 *             if arguments contain null.
+	 * @throws IllegalArgumentException
+	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             address, or they are incompatible.
+	 */
 	public final static void crossOverTwoPoint(Individual x, Individual y,
 			Random random) {
 		int max = x.chromosome.bitLength;
@@ -164,6 +220,17 @@ public class GeneticAlgorithm {
 		Chromosome.swap(x.chromosome, y.chromosome, mask);
 	}
 
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param random
+	 * @throws NullPointerException
+	 *             if arguments contain null.
+	 * @throws IllegalArgumentException
+	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             address, or they are incompatible.
+	 */
 	public static final void crossOverUniform(Individual x, Individual y,
 			Random random) {
 		int max = x.chromosome.bitLength;
