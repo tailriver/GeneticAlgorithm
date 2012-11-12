@@ -56,7 +56,7 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj;
+		return super.equals(obj);
 	}
 
 	@Override

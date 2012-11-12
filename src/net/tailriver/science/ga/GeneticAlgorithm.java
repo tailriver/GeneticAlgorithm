@@ -72,7 +72,6 @@ public class GeneticAlgorithm {
 		population.subList(0, ng).clear();
 		population.addAll(stack.subList(0, ng));
 		sorted = false;
-
 	}
 
 	public void mutate(double mutationRate) {
@@ -84,12 +83,11 @@ public class GeneticAlgorithm {
 
 	public void select() {
 		sort();
-		Collection<Individual> nextGeneration = new HashSet<>();
+		Collection<Individual> next = new HashSet<>();
 		for (Individual w : plan.applySelection(population)) {
-			nextGeneration.add(nextGeneration.contains(w) ? new Individual(w)
-					: w);
+			next.add(next.contains(w) ? new Individual(w) : w);
 		}
-		if (nextGeneration.size() != size) {
+		if (next.size() != size) {
 			throw new IllegalStateException();
 		}
 
@@ -98,11 +96,11 @@ public class GeneticAlgorithm {
 		}
 		population.clear();
 
-		for (Individual i : nextGeneration) {
+		for (Individual i : next) {
 			i.activateChromosomeWatcher();
 			population.add(i);
 		}
-		nextGeneration.clear();
+		next.clear();
 		sorted = false;
 	}
 
