@@ -1,5 +1,7 @@
 package net.tailriver.science.ga;
 
+import java.util.Arrays;
+
 public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	public final Chromosome chromosome;
 	private double fitness;
@@ -62,5 +64,11 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 		return new StringBuilder()
 				.append(Integer.toHexString(chromosome.hashCode())).append("#")
 				.append(fitness).toString();
+	}
+
+	public void print() {
+		System.out.println(this);
+		System.out.println(chromosome);
+		System.out.println(Arrays.deepToString(chromosome.phenoType));
 	}
 }

@@ -1,7 +1,6 @@
 package net.tailriver.science.ga;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -187,12 +186,5 @@ public class GeneticAlgorithm {
 			winner.add(candidates.get(m));
 		}
 		return winner;
-	}
-
-	public static void printIndividual(Individual individual) {
-		System.out.println(individual);
-		System.out.println(individual.chromosome);
-		System.out
-				.println(Arrays.deepToString(individual.chromosome.phenoType));
 	}
 }
