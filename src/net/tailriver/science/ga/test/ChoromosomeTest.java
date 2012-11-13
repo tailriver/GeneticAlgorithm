@@ -38,7 +38,21 @@ public class ChoromosomeTest {
 		assertEquals("10111001 0101001101111101000111010011101101",
 				c.toString());
 		assertEquals(185, c.getLong(0));
+		assertArrayEquals(new long[] { 185 }, c.getBitSet(0).toLongArray());
+		assertEquals(185d / 255, c.getScaled(0, 0, 1), Double.MIN_NORMAL);
 		assertEquals(5602833645L, c.getLong(1));
+	}
+
+	@Test
+	public void testChromosomeDouble() {
+		random = new Random(245238909421L);
+		c = new Chromosome.Creator().append(64).inflate();
+
+		c.randomize(random);
+		String binary = "0100000110110001011010010010001001100010110100110111010100001000";
+		assertEquals(binary, c.toString());
+		assertEquals(Double.longBitsToDouble(Long.parseLong(binary, 2)),
+				c.getDouble(0), Double.MIN_NORMAL);
 	}
 
 	@Test
@@ -129,6 +143,36 @@ public class ChoromosomeTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorAppendInvaild3() {
 		new Chromosome.Creator().append(0, 1);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testGetDouble63() {
+		c = new Chromosome.Creator().append(63).inflate();
+		c.getDouble(0);
+	}
+
+	@Test
+	public void testGetDouble64() {
+		c = new Chromosome.Creator().append(64).inflate();
+		c.getDouble(0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testGetDouble65() {
+		c = new Chromosome.Creator().append(65).inflate();
+		c.getDouble(0);
+	}
+
+	@Test
+	public void testGetLong64() {
+		c = new Chromosome.Creator().append(64).inflate();
+		c.getLong(0);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testGetLong65() {
+		c = new Chromosome.Creator().append(65).inflate();
+		c.getLong(0);
 	}
 
 	@Test(expected = NullPointerException.class)
