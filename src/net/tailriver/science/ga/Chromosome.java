@@ -11,7 +11,6 @@ public class Chromosome {
 	public final Object[] phenoType;
 
 	private final int[] offsetArray;
-	private final int[] nbitArray;
 	private final BitSet genoType;
 	private ChromosomeWatcher watcher;
 
@@ -29,17 +28,15 @@ public class Chromosome {
 			throw new IllegalArgumentException("list is empty");
 
 		int size = nbitList.size();
-		offsetArray = new int[size];
-		nbitArray = new int[size];
+		offsetArray = new int[size + 1];
 		offsetArray[0] = 0;
-		nbitArray[0] = nbitList.get(0);
-		for (int i = 1; i < size; i++) {
-			offsetArray[i] = offsetArray[i - 1] + nbitArray[i - 1];
-			nbitArray[i] = nbitList.get(i);
-			if (offsetArray[i] <= offsetArray[i - 1])
+		for (int i = 0; i < size; i++) {
+			int nbit = nbitList.get(i);
+			offsetArray[i + 1] = offsetArray[i] + nbit;
+			if (nbit < 1)
 				throw new IllegalArgumentException("list contains <1 value");
 		}
-		bitLength = offsetArray[size - 1] + nbitArray[size - 1];
+		bitLength = offsetArray[size];
 		genoType = new BitSet(bitLength);
 		phenoType = new Object[size];
 	}
@@ -60,16 +57,18 @@ public class Chromosome {
 	 * @param original
 	 *            copy source of {@link Chromosome}.
 	 */
-	// Shared: bitLength, offsetArray, nbitArray
-	// Deep copy: genoType
-	// Shallow copy: phenoType
-	// null: watcher
 	public Chromosome(Chromosome original) {
+		// shared address
 		bitLength = original.bitLength;
 		offsetArray = original.offsetArray;
-		nbitArray = original.nbitArray;
+
+		// deep copy
 		genoType = (BitSet) original.genoType.clone();
+
+		// shallow copy
 		phenoType = original.phenoType.clone();
+
+		// watcher is null
 	}
 
 	/**
@@ -81,8 +80,7 @@ public class Chromosome {
 	 * @see Chromosome#getLong(int)
 	 */
 	public BitSet getBitSet(int i) {
-		int offset = offsetArray[i];
-		return genoType.get(offset, offset + nbitArray[i]);
+		return genoType.get(offsetArray[i], offsetArray[i + 1]);
 	}
 
 	/**
@@ -98,9 +96,10 @@ public class Chromosome {
 	 * @see Chromosome#getScaled(int, double, double)
 	 */
 	public long getLong(int i) {
-		if (nbitArray[i] > 64)
+		int nbit = offsetArray[i + 1] - offsetArray[i];
+		if (nbit > 64)
 			throw new IllegalArgumentException("geno-type is <= 64 bit: "
-					+ nbitArray[i]);
+					+ nbit);
 
 		long[] v = getBitSet(i).toLongArray();
 		return v.length == 1 ? v[0] : 0;
@@ -117,9 +116,10 @@ public class Chromosome {
 	 * @see Chromosome#getLong(int)
 	 */
 	public double getDouble(int i) {
-		if (nbitArray[i] != 64)
+		int nbit = offsetArray[i + 1] - offsetArray[i];
+		if (nbit != 64)
 			throw new IllegalArgumentException("geno-type is not 64 bit: "
-					+ nbitArray[i]);
+					+ nbit);
 
 		return Double.longBitsToDouble(getLong(i));
 	}
@@ -138,7 +138,8 @@ public class Chromosome {
 	 * @see Chromosome#getLong(int)
 	 */
 	public double getScaled(int i, double min, double max) {
-		double resolution = Math.pow(2, nbitArray[i]) - 1;
+		int nbit = offsetArray[i + 1] - offsetArray[i];
+		double resolution = Math.pow(2, nbit) - 1;
 		return min + getLong(i) / resolution * (max - min);
 	}
 
@@ -265,24 +266,23 @@ public class Chromosome {
 	 *         condition in {@link Chromosome.Creator}; {@code false} otherwise.
 	 */
 	public boolean equalsSchema(Chromosome c) {
-		if (c == null)
-			return false;
-		return c == this || Arrays.equals(nbitArray, c.nbitArray);
+		return c != null
+				&& (c == this || Arrays.equals(offsetArray, c.offsetArray));
 	}
 
 	@Override
 	public String toString() {
 		final char delimiter = ' ';
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0, imax = offsetArray.length; i < imax; i++) {
-			int length = nbitArray[i];
+		for (int i = 0, imax = offsetArray.length - 1; i < imax; i++) {
+			int nbit = offsetArray[i + 1] - offsetArray[i];
 			long[] array = getBitSet(i).toLongArray();
 			if (array.length == 0) {
 				array = new long[] { 0 };
 			}
 			for (long l : array) {
 				String binary = Long.toBinaryString(l);
-				for (int j = 0, max = length - binary.length(); j < max; j++) {
+				for (int j = 0, max = nbit - binary.length(); j < max; j++) {
 					sb.append(0);
 				}
 				sb.append(binary);
