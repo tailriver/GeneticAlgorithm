@@ -1,9 +1,14 @@
-package net.tailriver.science.ga;
+package net.tailriver.science.ga.demo;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+
+import net.tailriver.science.ga.Chromosome;
+import net.tailriver.science.ga.GeneticAlgorithm;
+import net.tailriver.science.ga.GeneticAlgorithmPlan;
+import net.tailriver.science.ga.Individual;
 
 /**
  * Solves Michalewicz sample.
@@ -19,7 +24,7 @@ import java.util.Random;
  * 
  * @author tailriver
  */
-public class MichalewiczSample implements GeneticAlgorithmPlan {
+public class Michalewicz implements GeneticAlgorithmPlan {
 	private Random random = new Random();
 
 	@Override
@@ -61,7 +66,7 @@ public class MichalewiczSample implements GeneticAlgorithmPlan {
 
 	public static void main(String... args) {
 		Individual best = null;
-		GeneticAlgorithm ga = new GeneticAlgorithm(new MichalewiczSample(), 50);
+		GeneticAlgorithm ga = new GeneticAlgorithm(new Michalewicz(), 50);
 		ga.setReverseOrder(true);
 		for (int generation = 0; generation < 10000; generation++) {
 			ga.cross(0.25, 1);
