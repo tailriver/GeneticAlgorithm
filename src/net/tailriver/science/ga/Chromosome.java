@@ -246,13 +246,9 @@ public class Chromosome {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
-		if (obj == this)
-			return true;
 		if (obj instanceof Chromosome) {
 			Chromosome c = (Chromosome) obj;
-			return hashCode() == c.hashCode() && genoType.equals(c.genoType)
+			return super.equals(obj) || genoType.equals(c.genoType)
 					&& Arrays.equals(phenoType, c.phenoType) && equalsSchema(c);
 		}
 		return false;
