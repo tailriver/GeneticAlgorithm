@@ -74,6 +74,25 @@ public class Chromosome {
 	/**
 	 * 
 	 * @param i
+	 *            index of geno-type
+	 * @return boolean value of specified index of geno-type.
+	 * @throws ArrayIndexOutOfBoundsException
+	 * @throws IllegalArgumentException
+	 *             if the bit size of specified index is not 1 bit.
+	 */
+	public boolean getBoolean(int i) {
+		int offset = offsetArray[i];
+		int nbit = offsetArray[i + 1] - offset;
+		if (nbit != 1)
+			throw new IllegalArgumentException("geno-type must be 1 bit: "
+					+ nbit);
+
+		return genoType.get(offset);
+	}
+
+	/**
+	 * 
+	 * @param i
 	 *            index of geno-type.
 	 * @return BitSet value of specified index of geno-type.
 	 * @throws IndexOutOfBoundsException
