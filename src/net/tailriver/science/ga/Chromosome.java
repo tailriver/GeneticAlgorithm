@@ -50,7 +50,7 @@ public class Chromosome {
 	 * <li>Also {@code original.equalsSchema(copied)} is <code>true</code>.</li>
 	 * <li>Geno-type is deep-copied.</li>
 	 * <li>{@link Chromosome#phenoType} is shallow-copied.</li>
-	 * <li> {@link Chromosome#setOnChromosomeChanged(ChromosomeWatcher)} is
+	 * <li>{@link Chromosome#setOnChromosomeChanged(ChromosomeWatcher)} is
 	 * reseted (set to null).</li>
 	 * </ul>
 	 * 
@@ -95,7 +95,7 @@ public class Chromosome {
 	 * @param i
 	 *            index of geno-type.
 	 * @return BitSet value of specified index of geno-type.
-	 * @throws IndexOutOfBoundsException
+	 * @throws ArrayIndexOutOfBoundsException
 	 * @see Chromosome#getLong(int)
 	 */
 	public BitSet getBitSet(int i) {
@@ -107,7 +107,7 @@ public class Chromosome {
 	 * @param i
 	 *            index of geno-type.
 	 * @return long value of specified index of geno-type.
-	 * @throws IndexOutOfBoundsException
+	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
 	 *             if the bit size of the specified index is more than 64 bit.
 	 * @see Chromosome#getBitSet(int)
@@ -129,7 +129,7 @@ public class Chromosome {
 	 * @param i
 	 *            index of geno-type.
 	 * @return {@code Double.longBitsToDouble(getLong(i))}.
-	 * @throws IndexOutOfBoundsException
+	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
 	 *             if the bit size of the specified index is not 64 bit.
 	 * @see Chromosome#getLong(int)
@@ -153,7 +153,8 @@ public class Chromosome {
 	 *            maximum value.
 	 * @return {@code min + getLong(i) / resolution * (max - min)}<br>
 	 *         where {@code resolution} is 2<sup>nbit</sup> - 1.
-	 * @throws IndexOutOfBoundsException
+	 * @throws ArrayIndexOutOfBoundsException
+	 * @throws IllegalArgumentException
 	 * @see Chromosome#getLong(int)
 	 */
 	public double getScaled(int i, double min, double max) {
@@ -307,6 +308,12 @@ public class Chromosome {
 		return sb.deleteCharAt(sb.length() - 1).toString();
 	}
 
+	/**
+	 * Factory class for {@link Chromosome}.
+	 * 
+	 * @author shinsuke
+	 * 
+	 */
 	public static class Creator {
 		private List<Integer> nbitList = new ArrayList<>();
 
