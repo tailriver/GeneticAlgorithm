@@ -1,6 +1,7 @@
 package net.tailriver.science.ga;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,20 +12,18 @@ import java.util.Random;
 
 public class GeneticAlgorithm {
 	private final GeneticAlgorithmPlan plan;
-	private final List<Individual> population;
-	private final int size;
+	private final Individual[] population;
 	private Comparator<? super Individual> comparator;
 	private boolean sorted;
 
 	public GeneticAlgorithm(GeneticAlgorithmPlan plan, int size) {
 		this.plan = plan;
-		this.size = size;
-		population = new ArrayList<>();
+		population = new Individual[size];
 
-		while (population.size() < size) {
+		for (int i = 0; i < size; i++) {
 			Individual individual = plan.inflateIndividual();
 			individual.activateChromosomeWatcher();
-			population.add(individual);
+			population[i] = individual;
 		}
 	}
 
@@ -47,13 +46,13 @@ public class GeneticAlgorithm {
 	 * @param rank
 	 *            BE CAREFUL. It starts from <em>ONE</em>.
 	 * @return copy of {@link Individual} at specified {@code rank}.
-	 * @throws IndexOutOfBoundsException
+	 * @throws ArrayIndexOutOfBoundsException
 	 *             if {@code rank} is less than 1 or greater than number of
 	 *             population.
 	 */
 	public Individual getRankAt(int rank) {
 		sort();
-		return new Individual(population.get(rank - 1));
+		return new Individual(population[rank - 1]);
 	}
 
 	/**
@@ -84,24 +83,30 @@ public class GeneticAlgorithm {
 					+ generationGap);
 
 		Random random = plan.getRandom();
-		List<Individual> stack = new ArrayList<>();
+		int size = population.length;
+		List<Individual> before = Arrays.asList(population);
+		List<Individual> after = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			Individual x = population.get(i);
-			Individual y = population.get(random.nextInt(size));
+			Individual x = before.get(i);
+			Individual y = before.get(random.nextInt(size));
 			if (random.nextDouble() < crossoverRate) {
 				x = new Individual(x);
 				y = new Individual(y);
 				plan.applyCrossOver(x, y);
 			}
-			stack.add(x);
-			stack.add(y);
+			after.add(x);
+			after.add(y);
 		}
 
+		Collections.shuffle(before, random);
+		Collections.shuffle(after, random);
 		int ng = (int) (size * generationGap);
-		Collections.shuffle(population, random);
-		Collections.shuffle(stack, random);
-		population.subList(0, ng).clear();
-		population.addAll(stack.subList(0, ng));
+		for (int i = 0; i < ng; i++) {
+			population[i] = after.get(i);
+		}
+		for (int i = ng; i < size; i++) {
+			population[i] = before.get(i);
+		}
 		sorted = false;
 	}
 
@@ -121,24 +126,21 @@ public class GeneticAlgorithm {
 
 	public void select() {
 		sort();
-		Collection<Individual> next = new HashSet<>();
-		for (Individual w : plan.applySelection(population)) {
+		List<Individual> next = new ArrayList<>();
+		List<Individual> current = Arrays.asList(population);
+		for (Individual w : plan.applySelection(current)) {
 			next.add(next.contains(w) ? new Individual(w) : w);
 		}
+		int size = population.length;
 		if (next.size() != size) {
 			throw new IllegalStateException();
 		}
 
-		for (Individual i : population) {
-			i.deactivateChromosomeWatcher();
+		for (int i = 0; i < size; i++) {
+			population[i].deactivateChromosomeWatcher();
+			population[i] = next.get(i);
+			population[i].activateChromosomeWatcher();
 		}
-		population.clear();
-
-		for (Individual i : next) {
-			i.activateChromosomeWatcher();
-			population.add(i);
-		}
-		next.clear();
 		sorted = false;
 	}
 
@@ -166,7 +168,7 @@ public class GeneticAlgorithm {
 						+ individual.toString());
 		}
 
-		Collections.sort(population, comparator);
+		Arrays.sort(population, comparator);
 		sorted = true;
 	}
 
