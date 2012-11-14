@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.GeneticAlgorithm;
 import net.tailriver.science.ga.GeneticAlgorithmPlan;
+import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.Individual;
 
 /**
@@ -24,14 +24,22 @@ import net.tailriver.science.ga.Individual;
  * 
  * @author tailriver
  */
-public class Michalewicz implements GeneticAlgorithmPlan {
-	private Random random = new Random();
+public class Michalewicz implements GeneticAlgorithmPlan<Individual> {
+	protected GeneticAlgorithm<Individual> ga;
+	private Random random;
+
+	{
+		random = new Random();
+		ga = new GeneticAlgorithm<>(this, 50);
+		ga.setReverseOrder(true);
+	}
 
 	@Override
 	public Individual inflateIndividual() {
 		GenoType genoType = new GenoType.Creator().append(22).inflate();
-		genoType.randomize(random);
-		return new Individual(genoType);
+		Individual individual = new Individual(genoType);
+		individual.randomize(random);
+		return individual;
 	}
 
 	@Override
@@ -42,8 +50,7 @@ public class Michalewicz implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final GenoType c = individual.genoType;
-			double x = c.getScaled(0, -1, 2);
+			double x = individual.getGenoTypeDouble(0, -1, 2);
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;
 			individual.setPhenoType(0, x);
 			individual.setFitness(fitness);
@@ -52,35 +59,34 @@ public class Michalewicz implements GeneticAlgorithmPlan {
 
 	@Override
 	public void applyCrossOver(Individual x, Individual y) {
-		GeneticAlgorithm.crossOverTwoPoint(x, y, random);
+		Individual.crossOverTwoPoint(x, y, random);
 	}
 
 	@Override
 	public List<Individual> applySelection(List<Individual> candidates) {
 		List<Individual> winner = new ArrayList<>();
-		winner.addAll(GeneticAlgorithm.selectElite(candidates, 5));
-		winner.addAll(GeneticAlgorithm.selectTournament(candidates, random, 45,
+		winner.addAll(GeneticAlgorithm.selectElite(candidates, 2));
+		winner.addAll(GeneticAlgorithm.selectTournament(candidates, random, 48,
 				2));
 		return winner;
 	}
 
 	public static void main(String... args) {
+		Michalewicz mi = new Michalewicz();
 		Individual best = null;
-		GeneticAlgorithm ga = new GeneticAlgorithm(new Michalewicz(), 50);
-		ga.setReverseOrder(true);
 		for (int generation = 0; generation < 10000; generation++) {
-			ga.cross(0.25, 1);
-			ga.mutate(0.1);
+			mi.ga.cross(0.25, 1);
+			mi.ga.mutate(0.1);
 
-			Individual generationTop = ga.getRankAt(1);
-			if (best == null || generationTop.compareTo(best) > 0) {
+			Individual generationTop = mi.ga.getRankAt(1);
+			if (generationTop.isGreaterThan(best)) {
 				best = generationTop;
 				System.out.println(">> " + generation);
 				best.print();
 				System.out.println();
 			}
 
-			ga.select();
+			mi.ga.select();
 		}
 	}
 }

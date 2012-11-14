@@ -1,21 +1,50 @@
 package net.tailriver.science.ga;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import java.util.Random;
 
-public class GenoType {
-	public final int length;
-	public final int bitLength;
-
-	private final int[] offsetArray;
-	private final BitSet genoType;
-	private ChromosomeWatcher watcher;
+/**
+ * This class represents a chromosome.
+ * 
+ * @author tailriver
+ * 
+ */
+public class GenoType implements Serializable {
+	private static final long serialVersionUID = -6524107047593002784L;
 
 	/**
-	 * Create {@link GenoType} from {@link Creator#inflate()}.
+	 * Length of the chromosome. It does not equals to the bit length
+	 * (information length) of chromosome.
+	 */
+	public transient final int length;
+
+	/**
+	 * Offset information of chromosome. The length must be {@link #length} - 1.
+	 * 
+	 * @serial
+	 */
+	private final int[] offsetArray;
+
+	/**
+	 * Chromosome bits. To improve performance, it is implemented by a
+	 * {@link BitSet} object rather than <code>boolean[]</code> or something
+	 * like that.
+	 * 
+	 * @serialField
+	 */
+	private final BitSet chromosome;
+
+	/**
+	 * Observer pattern.
+	 */
+	private transient GenoTypeWatcher watcher;
+
+	/**
+	 * Creates a new chromosome from {@link Creator#inflate()} or other factory
+	 * method.
 	 * 
 	 * @param nbitList
 	 * @throws NullPointerException
@@ -36,35 +65,44 @@ public class GenoType {
 			if (nbit < 1)
 				throw new IllegalArgumentException("list contains <1 value");
 		}
-		bitLength = offsetArray[length];
-		genoType = new BitSet(bitLength);
+		chromosome = new BitSet(offsetArray[length]);
 	}
 
 	/**
-	 * Copy {@link GenoType} from another {@link GenoType} object.
+	 * Creates {@link GenoType} from another object.
 	 * 
 	 * <ul>
 	 * <li>{@code original == copied} is <code>false</code>.
-	 * <li>{@code original.equals(copied)} is <code>true</code>.</li>
-	 * <li>Also {@code original.equalsSchema(copied)} is <code>true</code>.</li>
-	 * <li>Geno-type is deep-copied.</li>
-	 * <li>{@link GenoType#setOnChromosomeChanged(ChromosomeWatcher)} is
-	 * reseted (set to null).</li>
+	 * <li>{@code original.equals(copied)} is <code>true</code> (chromosome is
+	 * deep-copied).</li>
+	 * <li>{@code original.equalsSchema(copied)} is also <code>true</code>
+	 * (index information is shared).</li>
+	 * <li>Specified {@link GenoTypeWatcher} object is lost. Please reset by
+	 * {@link #setGenoTypeWatcher(GenoTypeWatcher)} if need.</li>
 	 * </ul>
 	 * 
 	 * @param original
-	 *            copy source of {@link GenoType}.
+	 *            copy source.
 	 */
 	public GenoType(GenoType original) {
 		// shared address
 		length = original.length;
-		bitLength = original.bitLength;
 		offsetArray = original.offsetArray;
 
 		// deep copy
-		genoType = (BitSet) original.genoType.clone();
+		chromosome = (BitSet) original.chromosome.clone();
 
 		// watcher is null
+	}
+
+	/**
+	 * 
+	 * @param i
+	 * @return bit size of specified index.
+	 * @throws ArrayIndexOutOfBoundsException
+	 */
+	public final int getLength(int i) {
+		return offsetArray[i + 1] - offsetArray[i];
 	}
 
 	/**
@@ -76,14 +114,9 @@ public class GenoType {
 	 * @throws IllegalArgumentException
 	 *             if the bit size of specified index is not 1 bit.
 	 */
-	public boolean getBoolean(int i) {
-		int offset = offsetArray[i];
-		int nbit = offsetArray[i + 1] - offset;
-		if (nbit != 1)
-			throw new IllegalArgumentException("geno-type must be 1 bit: "
-					+ nbit);
-
-		return genoType.get(offset);
+	public final boolean getBoolean(int i) {
+		checkBooleanRange(i);
+		return chromosome.get(offsetArray[i]);
 	}
 
 	/**
@@ -94,8 +127,8 @@ public class GenoType {
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @see GenoType#getLong(int)
 	 */
-	public BitSet getBitSet(int i) {
-		return genoType.get(offsetArray[i], offsetArray[i + 1]);
+	public final BitSet getBitSet(int i) {
+		return chromosome.get(offsetArray[i], offsetArray[i + 1]);
 	}
 
 	/**
@@ -107,114 +140,66 @@ public class GenoType {
 	 * @throws IllegalArgumentException
 	 *             if the bit size of the specified index is more than 64 bit.
 	 * @see GenoType#getBitSet(int)
-	 * @see GenoType#getDouble(int)
-	 * @see GenoType#getScaled(int, double, double)
 	 */
-	public long getLong(int i) {
-		int nbit = offsetArray[i + 1] - offsetArray[i];
-		if (nbit > 64)
-			throw new IllegalArgumentException("geno-type is <= 64 bit: "
-					+ nbit);
-
+	public final long getLong(int i) {
+		checkLongRange(i);
 		long[] v = getBitSet(i).toLongArray();
 		return v.length == 1 ? v[0] : 0;
 	}
 
-	/**
-	 * 
-	 * @param i
-	 *            index of geno-type.
-	 * @return {@code Double.longBitsToDouble(getLong(i))}.
-	 * @throws ArrayIndexOutOfBoundsException
-	 * @throws IllegalArgumentException
-	 *             if the bit size of the specified index is not 64 bit.
-	 * @see GenoType#getLong(int)
-	 */
-	public double getDouble(int i) {
-		int nbit = offsetArray[i + 1] - offsetArray[i];
-		if (nbit != 64)
-			throw new IllegalArgumentException("geno-type is not 64 bit: "
-					+ nbit);
-
-		return Double.longBitsToDouble(getLong(i));
+	protected final void setBoolean(int i, boolean value) {
+		checkBooleanRange(i);
+		chromosome.set(offsetArray[i], value);
+		notifyGenoTypeChanged();
 	}
 
-	/**
-	 * 
-	 * @param i
-	 *            index of geno-type.
-	 * @param min
-	 *            minimum value.
-	 * @param max
-	 *            maximum value.
-	 * @return {@code min + getLong(i) / resolution * (max - min)}<br>
-	 *         where {@code resolution} is 2<sup>nbit</sup> - 1.
-	 * @throws ArrayIndexOutOfBoundsException
-	 * @throws IllegalArgumentException
-	 * @see GenoType#getLong(int)
-	 */
-	public double getScaled(int i, double min, double max) {
-		int nbit = offsetArray[i + 1] - offsetArray[i];
-		double resolution = Math.pow(2, nbit) - 1;
-		return min + getLong(i) / resolution * (max - min);
+	protected final void setBitSet(int i, BitSet value) {
+		int offset = offsetArray[i];
+		int max = offsetArray[i + 1] - offset;
+		for (int j = 0; j < max; j++) {
+			chromosome.set(offset + j, value.get(j));
+		}
+		notifyGenoTypeChanged();
 	}
 
-	public void setOnChromosomeChanged(ChromosomeWatcher watcher) {
+	private final void checkBooleanRange(int i) {
+		if (getLength(i) != 1)
+			throw new IllegalArgumentException("index [" + i
+					+ "] must be 1 bit");
+	}
+
+	private final void checkLongRange(int i) {
+		if (getLength(i) > 64)
+			throw new IllegalArgumentException("index [" + i
+					+ "] must be 64 bit or less");
+	}
+
+	public void setGenoTypeWatcher(GenoTypeWatcher watcher) {
 		this.watcher = watcher;
 	}
 
-	protected void notifyChromosomeChanged() {
-		if (watcher != null) {
-			watcher.onChromosomeChanged();
-		}
+	protected void notifyGenoTypeChanged() {
+		if (watcher != null)
+			watcher.onGenoTypeChanged();
+	}
+
+	public Mask getMask() {
+		return new Mask(offsetArray[length]);
 	}
 
 	/**
 	 * 
-	 * @param random
-	 *            random seed.
+	 * @param mask
 	 * @throws NullPointerException
-	 *             if {@code random} is null.
+	 *             if {@code mask} is null.
 	 */
-	public void randomize(Random random) {
-		for (int i = 0; i < bitLength; i++) {
-			genoType.set(i, random.nextBoolean());
-		}
-	}
+	public void invert(Mask mask) {
+		if (mask.isEmpty())
+			return;
 
-	/**
-	 * 
-	 * @param random
-	 *            random seed.
-	 * @param probability
-	 *            probability of mutation happens.
-	 * @throws NullPointerException
-	 *             if {@code random} is null.
-	 * @throws IllegalArgumentException
-	 *             if {@code probability} is {@code NaN}.
-	 * @throws IndexOutOfBoundsException
-	 *             if {@code (probability < 0 || probability > 1)}.
-	 */
-	public void mutate(Random random, double probability) {
-		if (Double.isNaN(probability))
-			throw new IllegalArgumentException("probability is NaN");
-		if (probability < 0)
-			throw new IndexOutOfBoundsException("probability < 0: "
-					+ probability);
-		if (probability > 1)
-			throw new IndexOutOfBoundsException("probability > 1: "
-					+ probability);
-
-		boolean changed = false;
-		for (int i = 0; i < bitLength; i++) {
-			if (random.nextDouble() < probability) {
-				genoType.flip(i);
-				changed = true;
-			}
-		}
-		if (changed) {
-			notifyChromosomeChanged();
-		}
+		for (int i = mask.nextSetBit(0); i >= 0; i = mask.nextSetBit(i + 1))
+			chromosome.flip(i);
+		notifyGenoTypeChanged();
 	}
 
 	/**
@@ -224,46 +209,44 @@ public class GenoType {
 	 * @param b
 	 *            object to swap.
 	 * @param mask
-	 *            A {@link BitSet} object. The {@link GenoType}s swap where
-	 *            the bit is <code>true</code>.
+	 *            A {@link BitSet} object. They swap where the bit is
+	 *            <code>true</code>.
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
 	 *             if {@link GenoType}s point same address, or they are
 	 *             incompatible ({@code a.equalsSchema(b) == false}).
 	 */
-	public static void swap(GenoType a, GenoType b, BitSet mask) {
+	public static void swap(GenoType a, GenoType b, Mask mask) {
 		if (a == b)
-			throw new IllegalArgumentException("chromosomes have same address");
+			throw new IllegalArgumentException("a and b point the same address");
 		if (!a.equalsSchema(b))
-			throw new IllegalArgumentException("incompatible chromosomes");
+			throw new IllegalArgumentException("incompatible chromosome type");
+		if (mask.isEmpty())
+			return;
 
-		for (int i = 0, max = a.bitLength; i < max; i++) {
-			if (mask.get(i)) {
-				boolean temp = a.genoType.get(i);
-				a.genoType.set(i, b.genoType.get(i));
-				b.genoType.set(i, temp);
-			}
+		for (int i = mask.nextSetBit(0); i >= 0; i = mask.nextSetBit(i + 1)) {
+			boolean temp = a.chromosome.get(i);
+			a.chromosome.set(i, b.chromosome.get(i));
+			b.chromosome.set(i, temp);
 		}
-		if (!mask.isEmpty()) {
-			a.notifyChromosomeChanged();
-			b.notifyChromosomeChanged();
-		}
+		a.notifyGenoTypeChanged();
+		b.notifyGenoTypeChanged();
 	}
 
 	/**
-	 * Returns hash code of geno-type object.
+	 * Returns hash code of chromosome object.
 	 */
 	@Override
 	public int hashCode() {
-		return genoType.hashCode();
+		return chromosome.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof GenoType) {
 			GenoType c = (GenoType) obj;
-			return super.equals(obj) || genoType.equals(c.genoType)
+			return this == c || chromosome.equals(c.chromosome)
 					&& equalsSchema(c);
 		}
 		return false;
@@ -273,8 +256,9 @@ public class GenoType {
 	 * 
 	 * @param c
 	 *            the reference object with which to compare.
-	 * @return {@code true} if {@code c == this} or they are created same
-	 *         condition in {@link GenoType.Creator}; {@code false} otherwise.
+	 * @return <code>true</code> if {@code c == this} or they are created same
+	 *         condition in {@link GenoType.Creator}; <code>false</code>
+	 *         otherwise.
 	 * @throws NullPointerException
 	 *             if {@code c} is null.
 	 */
@@ -287,7 +271,7 @@ public class GenoType {
 		final char delimiter = ' ';
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++) {
-			int nbit = offsetArray[i + 1] - offsetArray[i];
+			int nbit = getLength(i);
 			long[] array = getBitSet(i).toLongArray();
 			if (array.length == 0) {
 				array = new long[] { 0 };
@@ -315,9 +299,11 @@ public class GenoType {
 
 		/**
 		 * 
+		 * This implementation calls {@code append(nbit, 1)}.
+		 * 
 		 * @param nbit
 		 *            bit size (resolution).
-		 * @return {@link Creator} itself.
+		 * @return this creator object.
 		 * @throws IllegalArgumentException
 		 *             if {@code nbit} < 1.
 		 */
@@ -331,7 +317,7 @@ public class GenoType {
 		 *            bit size (resolution).
 		 * @param times
 		 *            times to repeat.
-		 * @return {@link Creator} itself.
+		 * @return this creator object.
 		 * @throws IllegalArgumentException
 		 *             if {@code nbit} < 1 or {@code times} < 1.
 		 */
@@ -341,9 +327,8 @@ public class GenoType {
 			if (times < 1)
 				throw new IllegalArgumentException("times < 1: " + times);
 
-			for (int i = 0; i < times; i++) {
+			for (int i = 0; i < times; i++)
 				nbitList.add(nbit);
-			}
 			return this;
 		}
 

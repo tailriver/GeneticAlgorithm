@@ -2,36 +2,41 @@ package net.tailriver.science.ga;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-public class GeneticAlgorithm {
-	private final GeneticAlgorithmPlan plan;
-	private final Individual[] population;
-	private Comparator<? super Individual> comparator;
+public class GeneticAlgorithm<T extends Individual> {
+	protected final GeneticAlgorithmPlan<T> plan;
+	protected final T[] population;
+	private Comparator<? super T> comparator;
 	private boolean sorted;
 
-	public GeneticAlgorithm(GeneticAlgorithmPlan plan, int size) {
+	@SuppressWarnings("unchecked")
+	public GeneticAlgorithm(GeneticAlgorithmPlan<T> plan, int size) {
 		this.plan = plan;
-		population = new Individual[size];
+		population = (T[]) new Individual[size];
 
 		for (int i = 0; i < size; i++) {
-			Individual individual = plan.inflateIndividual();
-			individual.activateChromosomeWatcher();
+			T individual = plan.inflateIndividual();
+			individual.activateWatcher();
 			population[i] = individual;
 		}
 	}
 
-	public void setComparator(Comparator<? super Individual> comparator) {
+	public void setComparator(Comparator<? super T> comparator) {
 		this.comparator = comparator;
 		sorted = false;
 	}
 
+	/**
+	 * 
+	 * @param reverseOrder
+	 *            if <code>true</code>
+	 * 
+	 */
 	public void setReverseOrder(boolean reverseOrder) {
 		setComparator(reverseOrder ? Collections.reverseOrder() : null);
 	}
@@ -50,9 +55,10 @@ public class GeneticAlgorithm {
 	 *             if {@code rank} is less than 1 or greater than number of
 	 *             population.
 	 */
-	public Individual getRankAt(int rank) {
+	@SuppressWarnings("unchecked")
+	public T getRankAt(int rank) {
 		sort();
-		return new Individual(population[rank - 1]);
+		return (T) population[rank - 1].clone();
 	}
 
 	/**
@@ -64,34 +70,21 @@ public class GeneticAlgorithm {
 	 * @throws IndexOutOfBoundsException
 	 *             if arguments are less than 0 or greater than 1.
 	 */
+	@SuppressWarnings("unchecked")
 	public void cross(double crossoverRate, double generationGap) {
-		if (Double.isNaN(crossoverRate))
-			throw new IllegalArgumentException("crossoverRate is NaN");
-		if (crossoverRate < 0)
-			throw new IndexOutOfBoundsException("crossoverRate < 0: "
-					+ crossoverRate);
-		if (crossoverRate > 1)
-			throw new IndexOutOfBoundsException("crossoverRate > 1: "
-					+ crossoverRate);
-		if (Double.isNaN(generationGap))
-			throw new IllegalArgumentException("generationGap is NaN");
-		if (generationGap < 0)
-			throw new IndexOutOfBoundsException("generationGap < 0: "
-					+ generationGap);
-		if (generationGap > 1)
-			throw new IndexOutOfBoundsException("generationGap > 1: "
-					+ generationGap);
+		probabilityCheck("crossover rate", crossoverRate);
+		probabilityCheck("generation gap", generationGap);
 
 		Random random = plan.getRandom();
 		int size = population.length;
-		List<Individual> before = Arrays.asList(population);
-		List<Individual> after = new ArrayList<>();
+		List<T> before = Arrays.asList(population);
+		List<T> after = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			Individual x = before.get(i);
-			Individual y = before.get(random.nextInt(size));
+			T x = before.get(i);
+			T y = before.get(random.nextInt(size));
 			if (random.nextDouble() < crossoverRate) {
-				x = new Individual(x);
-				y = new Individual(y);
+				x = (T) x.clone();
+				y = (T) y.clone();
 				plan.applyCrossOver(x, y);
 			}
 			after.add(x);
@@ -119,17 +112,17 @@ public class GeneticAlgorithm {
 	 */
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
-		for (Individual i : population) {
-			i.genoType.mutate(random, mutationRate);
-		}
+		for (Individual i : population)
+			i.mutate(random, mutationRate);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void select() {
 		sort();
-		List<Individual> next = new ArrayList<>();
-		List<Individual> current = Arrays.asList(population);
-		for (Individual w : plan.applySelection(current)) {
-			next.add(next.contains(w) ? new Individual(w) : w);
+		List<T> next = new ArrayList<>();
+		List<T> current = (List<T>) Arrays.asList(population);
+		for (T w : plan.applySelection(current)) {
+			next.add((next.contains(w) ? (T) w.clone() : w));
 		}
 		int size = population.length;
 		if (next.size() != size) {
@@ -137,9 +130,9 @@ public class GeneticAlgorithm {
 		}
 
 		for (int i = 0; i < size; i++) {
-			population[i].deactivateChromosomeWatcher();
+			population[i].deactivateWatcher();
 			population[i] = next.get(i);
-			population[i].activateChromosomeWatcher();
+			population[i].activateWatcher();
 		}
 		sorted = false;
 	}
@@ -150,19 +143,12 @@ public class GeneticAlgorithm {
 	 *             {@link GeneticAlgorithmPlan#calculateFitness(Collection)}
 	 *             called.
 	 */
-	private void sort() {
-		if (sorted) {
+	protected void sort() {
+		if (sorted)
 			return;
-		}
 
-		Collection<Individual> todo = new HashSet<>();
-		for (Individual individual : population) {
-			if (!individual.hasFitness()) {
-				todo.add(individual);
-			}
-		}
-		plan.calculateFitness(todo);
-		for (Individual individual : todo) {
+		plan.calculateFitness(Arrays.asList(population));
+		for (T individual : population) {
 			if (!individual.hasFitness())
 				throw new IllegalStateException("fitness is NaN: "
 						+ individual.toString());
@@ -181,84 +167,22 @@ public class GeneticAlgorithm {
 		return sb.toString();
 	}
 
-	/**
-	 * 
-	 * @param x
-	 * @param y
-	 * @param random
-	 * @throws NullPointerException
-	 *             if arguments contain null.
-	 * @throws IllegalArgumentException
-	 *             if {@link GenoType}s of {@link Individual}s point same
-	 *             address, or they are incompatible.
-	 */
-	public final static void crossOverSinglePoint(Individual x, Individual y,
-			Random random) {
-		int max = x.genoType.bitLength;
-		int p = random.nextInt(max);
-		BitSet mask = new BitSet(max);
-		mask.set(p, max, true);
-		GenoType.swap(x.genoType, y.genoType, mask);
-	}
-
-	/**
-	 * 
-	 * @param x
-	 * @param y
-	 * @param random
-	 * @throws NullPointerException
-	 *             if arguments contain null.
-	 * @throws IllegalArgumentException
-	 *             if {@link GenoType}s of {@link Individual}s point same
-	 *             address, or they are incompatible.
-	 */
-	public final static void crossOverTwoPoint(Individual x, Individual y,
-			Random random) {
-		int max = x.genoType.bitLength;
-		int p = random.nextInt(max);
-		int q = random.nextInt(max);
-		BitSet mask = new BitSet(max);
-		mask.set(Math.min(p, q), Math.max(p, q), true);
-		GenoType.swap(x.genoType, y.genoType, mask);
-	}
-
-	/**
-	 * 
-	 * @param x
-	 * @param y
-	 * @param random
-	 * @throws NullPointerException
-	 *             if arguments contain null.
-	 * @throws IllegalArgumentException
-	 *             if {@link GenoType}s of {@link Individual}s point same
-	 *             address, or they are incompatible.
-	 */
-	public static final void crossOverUniform(Individual x, Individual y,
-			Random random) {
-		int max = x.genoType.bitLength;
-		BitSet mask = new BitSet(max);
-		for (int i = 0; i < max; i++) {
-			mask.set(i, random.nextBoolean());
-		}
-		GenoType.swap(x.genoType, y.genoType, mask);
-	}
-
-	public static final List<Individual> selectElite(
-			List<Individual> candidates, int n) {
+	public static final <T extends Individual> List<T> selectElite(
+			List<T> candidates, int n) {
 		if (n < 1 || n > candidates.size()) {
 			throw new IllegalArgumentException();
 		}
 		return candidates.subList(0, n);
 	}
 
-	public static final List<Individual> selectTournament(
-			List<Individual> candidates, Random random, int n, int k) {
+	public static final <T extends Individual> List<T> selectTournament(
+			List<T> candidates, Random random, int n, int k) {
 		int size = candidates.size();
 		if (n < 1 || k < 2 || n > size) {
 			throw new IllegalArgumentException();
 		}
 
-		List<Individual> winner = new ArrayList<>();
+		List<T> winner = new ArrayList<>();
 		for (int i = 0; i < n; i++) {
 			int m = random.nextInt(size);
 			for (int j = 1; j < k; j++) {
@@ -267,5 +191,12 @@ public class GeneticAlgorithm {
 			winner.add(candidates.get(m));
 		}
 		return winner;
+	}
+
+	/* package */static final void probabilityCheck(CharSequence name,
+			double probability) {
+		if (!(probability >= 0 && probability <= 1))
+			throw new IllegalArgumentException(name + " must be [0,1]: "
+					+ probability);
 	}
 }

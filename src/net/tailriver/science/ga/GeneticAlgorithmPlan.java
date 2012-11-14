@@ -4,16 +4,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-public interface GeneticAlgorithmPlan {
+public interface GeneticAlgorithmPlan<T extends Individual> {
 	/**
 	 * Called from constructor of {@link GeneticAlgorithm}.
 	 * 
 	 * @return inflated {@link Individual}.
 	 * @see GenoType.Creator
-	 * @see GenoType#randomize(Random)
 	 * @see Individual#Individual(GenoType)
+	 * @see Individual#randomize(Random)
 	 */
-	Individual inflateIndividual();
+	T inflateIndividual();
 
 	/**
 	 * Called from some methods in {@link GeneticAlgorithm}.
@@ -31,13 +31,20 @@ public interface GeneticAlgorithmPlan {
 	 * Called from some methods in {@link GeneticAlgorithm}.
 	 * 
 	 * <ol>
-	 * <li>Get {@link GenoType}: {@link Individual#genoType}.
-	 * <li> {@link GenoType#getLong(int)} or something like that to fetch
-	 * geno-type value.</li>
-	 * <li>(optional) Set pheno-type by
+	 * <li>Get the values of {@link GenoType}:
+	 * <ul>
+	 * <li>{@link Individual#getGenoTypeBitSet(int)}</li>
+	 * <li>{@link Individual#getGenoTypeBoolean(int)}</li>
+	 * <li>{@link Individual#getGenoTypeDouble(int)}</li>
+	 * <li>{@link Individual#getGenoTypeDouble(int, double, double)}</li>
+	 * <li>{@link Individual#getGenoTypeLong(int)}</li>
+	 * </ul>
+	 * </li>
+	 * <li>Calculate pheno type value from above.</li>
+	 * <li>(optional) Set pheno type by
 	 * {@link Individual#setPhenoType(int, Object)}.</li>
-	 * <li>Calculate fitness from above geno-type or pheno-type.</li>
-	 * <li>Save fitness value. Use {@link Individual#setFitness(double)}.</li>
+	 * <li>Calculate fitness.</li>
+	 * <li>Save fitness value by {@link Individual#setFitness(double)}.</li>
 	 * </ol>
 	 * 
 	 * If you don't save fitness for some of Individuals,
@@ -46,7 +53,7 @@ public interface GeneticAlgorithmPlan {
 	 * @param population
 	 *            Collection of {@link Individual} to calculate fitness.
 	 */
-	void calculateFitness(Collection<Individual> population);
+	void calculateFitness(Collection<T> population);
 
 	/**
 	 * Called from {@link GeneticAlgorithm#cross(double, double)}.
@@ -54,8 +61,8 @@ public interface GeneticAlgorithmPlan {
 	 * <p>
 	 * You select one of method to specify a crossover strategy of the plan and
 	 * describe, that's all. If you want to use other strategy, you may need to
-	 * use {@link GenoType#swap(GenoType, GenoType, java.util.BitSet)}
-	 * directly or extend {@link GenoType} to modify geno-type.
+	 * use {@link GenoType#swap(GenoType, GenoType, Mask)} directly or extend
+	 * {@link GenoType} to modify geno-type.
 	 * </p>
 	 * 
 	 * <p>
@@ -69,12 +76,11 @@ public interface GeneticAlgorithmPlan {
 	 *            parent and child (mutable).
 	 * @param y
 	 *            parent and child (mutable).
-	 * @see GeneticAlgorithm#crossOverSinglePoint(Individual, Individual,
-	 *      Random)
-	 * @see GeneticAlgorithm#crossOverTwoPoint(Individual, Individual, Random)
-	 * @see GeneticAlgorithm#crossOverUniform(Individual, Individual, Random)
+	 * @see Individual#crossOverSinglePoint(Individual, Individual, Random)
+	 * @see Individual#crossOverTwoPoint(Individual, Individual, Random)
+	 * @see Individual#crossOverUniform(Individual, Individual, Random)
 	 */
-	void applyCrossOver(Individual x, Individual y);
+	void applyCrossOver(T x, T y);
 
 	/**
 	 * Called from {@link GeneticAlgorithm#select()}.
@@ -87,5 +93,5 @@ public interface GeneticAlgorithmPlan {
 	 * @see GeneticAlgorithm#selectElite(List, int)
 	 * @see GeneticAlgorithm#selectTournament(List, Random, int, int)
 	 */
-	List<Individual> applySelection(List<Individual> population);
+	List<T> applySelection(List<T> population);
 }

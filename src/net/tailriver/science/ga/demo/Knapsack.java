@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.GeneticAlgorithm;
 import net.tailriver.science.ga.GeneticAlgorithmPlan;
+import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.Individual;
 
 /**
@@ -32,7 +32,7 @@ import net.tailriver.science.ga.Individual;
  * 
  * @author tailriver
  */
-public class Knapsack implements GeneticAlgorithmPlan {
+public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 	private Random random = new Random();
 
 	private static final int[] weights = new int[] {
@@ -51,10 +51,10 @@ public class Knapsack implements GeneticAlgorithmPlan {
 
 	@Override
 	public Individual inflateIndividual() {
-		GenoType genoType = new GenoType.Creator().append(50, 1)
-				.inflate();
-		genoType.randomize(random);
-		return new Individual(genoType);
+		GenoType genoType = new GenoType.Creator().append(50, 1).inflate();
+		Individual individual = new Individual(genoType);
+		individual.randomize(random);
+		return individual;
 	}
 
 	@Override
@@ -65,8 +65,7 @@ public class Knapsack implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final GenoType c = individual.genoType;
-			BitSet set = c.getBitSet(0);
+			BitSet set = individual.getGenoTypeBitSet(0);
 			int weightTotal = 0;
 			int priceTotal = 0;
 			for (int i = 0; i < weights.length; i++) {
@@ -86,7 +85,7 @@ public class Knapsack implements GeneticAlgorithmPlan {
 
 	@Override
 	public void applyCrossOver(Individual x, Individual y) {
-		GeneticAlgorithm.crossOverTwoPoint(x, y, random);
+		Individual.crossOverTwoPoint(x, y, random);
 	}
 
 	@Override
@@ -100,14 +99,15 @@ public class Knapsack implements GeneticAlgorithmPlan {
 
 	public static void main(String... args) {
 		Individual best = null;
-		GeneticAlgorithm ga = new GeneticAlgorithm(new Knapsack(), 80);
+		GeneticAlgorithm<Individual> ga = new GeneticAlgorithm<>(
+				new Knapsack(), 80);
 		ga.setReverseOrder(true);
 		for (int generation = 0; generation < 100000; generation++) {
 			ga.cross(0.7, 0.9);
 			ga.mutate(0.01);
 
 			Individual generationTop = ga.getRankAt(1);
-			if (best == null || generationTop.compareTo(best) > 0) {
+			if (best == null || generationTop.isGreaterThan(best)) {
 				best = generationTop;
 				System.out.println(">> " + generation);
 				best.print();

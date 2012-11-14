@@ -7,87 +7,53 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.BitSet;
 import java.util.Random;
 
 import net.tailriver.science.ga.GenoType;
+import net.tailriver.science.ga.Mask;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class ChoromosomeTest {
+public class GenoTypeTest {
 	GenoType c;
 	Random random;
-	BitSet mask;
+	Mask mask;
 
 	@Before
 	public void setUp() {
 		c = new GenoType.Creator().append(4, 8).inflate();
-		random = new Random();
-		mask = new BitSet();
+		mask = c.getMask();
 	}
 
 	@Test
-	public void testChromosome() {
+	public void testGenoType() {
 		random = new Random(42342352);
 		c = new GenoType.Creator().append(8, 1).append(34, 1).inflate();
+		randomize(c);
 
-		c.randomize(random);
 		assertEquals(2, c.length);
-		assertEquals(42, c.bitLength);
+		assertEquals(8, c.getLength(0));
+		assertEquals(34, c.getLength(1));
 		assertEquals("10111001 0101001101111101000111010011101101",
 				c.toString());
 		assertEquals(185, c.getLong(0));
 		assertArrayEquals(new long[] { 185 }, c.getBitSet(0).toLongArray());
-		assertEquals(185d / 255, c.getScaled(0, 0, 1), Double.MIN_NORMAL);
 		assertEquals(5602833645L, c.getLong(1));
-	}
-
-	@Test
-	public void testChromosomeDouble() {
-		random = new Random(245238909421L);
-		c = new GenoType.Creator().append(64).inflate();
-
-		c.randomize(random);
-		String binary = "0100000110110001011010010010001001100010110100110111010100001000";
-		assertEquals(binary, c.toString());
-		assertEquals(Double.longBitsToDouble(Long.parseLong(binary, 2)),
-				c.getDouble(0), Double.MIN_NORMAL);
 	}
 
 	@Test
 	public void testRandomize() {
 		random = new Random(343129087);
 		GenoType p = new GenoType(c);
-		p.randomize(random);
+		randomize(p);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
 		assertEquals("1110 0010 0000 1111 0001 1110 1010 1100", p.toString());
 	}
 
 	@Test
-	public void testMutate() {
-		random = new Random(59034);
-		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
+	public void testInvert() {
 
-		// should not change
-		GenoType p = new GenoType(c);
-		p.mutate(random, 0);
-		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", p.toString());
-
-		// should flip about 3 bits
-		GenoType q = new GenoType(c);
-		q.mutate(random, 0.1);
-		assertEquals("0010 0001 0000 0000 0000 0100 0000 0000", q.toString());
-
-		// should flip about half of all bits
-		GenoType r = new GenoType(c);
-		r.mutate(random, 0.5);
-		assertEquals("1011 1100 1000 1111 1001 1110 1111 0100", r.toString());
-
-		// should invert all bits
-		GenoType s = new GenoType(c);
-		s.mutate(random, 1);
-		assertEquals("1111 1111 1111 1111 1111 1111 1111 1111", s.toString());
 	}
 
 	@Test
@@ -95,11 +61,11 @@ public class ChoromosomeTest {
 		random = new Random(4329);
 		GenoType a = new GenoType(c);
 		GenoType b = new GenoType(c);
-		a.randomize(random);
-		b.randomize(random);
+		randomize(a);
+		randomize(b);
 		assertEquals("1110 0001 0101 1000 1011 1111 1101 1111", a.toString());
 		assertEquals("1110 0101 1100 0101 0011 1011 0011 0010", b.toString());
-		mask.set(6, 22, true);
+		mask.set(6, 22);
 		GenoType.swap(a, b, mask);
 		assertEquals("1110 0101 1100 0101 0011 1111 1101 1111", a.toString());
 		assertEquals("1110 0001 0101 1000 1011 1011 0011 0010", b.toString());
@@ -112,7 +78,8 @@ public class ChoromosomeTest {
 		assertTrue(c.equals(copy));
 		assertEquals(c.toString(), copy.toString());
 
-		c.randomize(random);
+		mask.set(0);
+		c.invert(mask);
 		assertFalse(c.toString().equals(copy.toString()));
 	}
 
@@ -142,22 +109,21 @@ public class ChoromosomeTest {
 		new GenoType.Creator().append(0, 1);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testGetDouble63() {
-		c = new GenoType.Creator().append(63).inflate();
-		c.getDouble(0);
+	@Test
+	public void testGetBitSet() {
+		c.getBitSet(0);
 	}
 
 	@Test
-	public void testGetDouble64() {
-		c = new GenoType.Creator().append(64).inflate();
-		c.getDouble(0);
+	public void testGetBoolean1() {
+		c = new GenoType.Creator().append(2).inflate();
+		c.getBoolean(0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testGetDouble65() {
-		c = new GenoType.Creator().append(65).inflate();
-		c.getDouble(0);
+	public void testGetBoolean2() {
+		c = new GenoType.Creator().append(2).inflate();
+		c.getBoolean(0);
 	}
 
 	@Test
@@ -172,42 +138,17 @@ public class ChoromosomeTest {
 		c.getLong(0);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void testRandomizeInvalidRandom() {
-		c.randomize(null);
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void testMutateInvalidRandom() {
-		c.mutate(null, 0.5);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testMutateInvalidRate() {
-		c.mutate(random, Double.NaN);
-	}
-
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void testMutateOutOfBounds1() {
-		c.mutate(random, -Double.MIN_NORMAL);
-	}
-
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void testMutateOutOfBounds2() {
-		c.mutate(random, 1.000000001);
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testSwapIncompatibleChoromosome() {
 		GenoType a = new GenoType.Creator().append(4, 8).inflate();
 		GenoType b = new GenoType.Creator().append(4, 9).inflate();
-		mask.set(0, 1, true);
+		mask.set(0, 1);
 		GenoType.swap(a, b, mask);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSwapSameAddressChromosome() {
-		mask.set(0, 1, true);
+	public void testSwapSameGenoType() {
+		mask.set(0, 1);
 		GenoType.swap(c, c, mask);
 	}
 
@@ -216,5 +157,13 @@ public class ChoromosomeTest {
 		GenoType a = new GenoType(c);
 		GenoType b = new GenoType(c);
 		GenoType.swap(a, b, null);
+	}
+
+	public void randomize(GenoType g) {
+		for (int i = 0, max = mask.length; i < max; i++) {
+			if (random.nextBoolean())
+				mask.set(i);
+		}
+		g.invert(mask);
 	}
 }
