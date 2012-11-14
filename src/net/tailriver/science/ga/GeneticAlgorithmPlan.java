@@ -31,10 +31,11 @@ public interface GeneticAlgorithmPlan {
 	 * Called from some methods in {@link GeneticAlgorithm}.
 	 * 
 	 * <ol>
-	 * <li>Get {@link Chromosome}: {@link Individual#chromosome}.
+	 * <li>Get {@link Chromosome}: {@link Individual#genoType}.
 	 * <li> {@link Chromosome#getLong(int)} or something like that to fetch
 	 * geno-type value.</li>
-	 * <li>(optional) Set pheno-type by modify {@link Chromosome#phenoType}.</li>
+	 * <li>(optional) Set pheno-type by
+	 * {@link Individual#setPhenoType(int, Object)}.</li>
 	 * <li>Calculate fitness from above geno-type or pheno-type.</li>
 	 * <li>Save fitness value. Use {@link Individual#setFitness(double)}.</li>
 	 * </ol>

@@ -3,17 +3,28 @@ package net.tailriver.science.ga;
 import java.util.Arrays;
 
 public class Individual implements ChromosomeWatcher, Comparable<Individual> {
-	public final Chromosome chromosome;
+	public final Chromosome genoType;
+	private final Object[] phenoType;
 	private double fitness;
 
 	public Individual(Chromosome chromosome) {
-		this.chromosome = chromosome;
+		this.genoType = chromosome;
+		phenoType = new Object[chromosome.length];
 		fitness = Double.NaN;
 	}
 
 	public Individual(Individual original) {
-		chromosome = new Chromosome(original.chromosome);
+		genoType = new Chromosome(original.genoType);
+		phenoType = original.phenoType.clone();
 		fitness = original.fitness;
+	}
+
+	public Object getPhenoType(int i) {
+		return phenoType[i];
+	}
+
+	public void setPhenoType(int i, Object phenoType) {
+		this.phenoType[i] = phenoType;
 	}
 
 	public final boolean hasFitness() {
@@ -29,15 +40,18 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	}
 
 	public void activateChromosomeWatcher() {
-		chromosome.setOnChromosomeChanged(this);
+		genoType.setOnChromosomeChanged(this);
 	}
 
 	public void deactivateChromosomeWatcher() {
-		chromosome.setOnChromosomeChanged(null);
+		genoType.setOnChromosomeChanged(null);
 	}
 
 	@Override
 	public void onChromosomeChanged() {
+		for (int i = 0, max = phenoType.length; i < max; i++) {
+			phenoType[i] = null;
+		}
 		fitness = Double.NaN;
 	}
 
@@ -51,7 +65,7 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 
 	@Override
 	public int hashCode() {
-		return chromosome.hashCode();
+		return genoType.hashCode();
 	}
 
 	@Override
@@ -62,13 +76,13 @@ public class Individual implements ChromosomeWatcher, Comparable<Individual> {
 	@Override
 	public String toString() {
 		return new StringBuilder()
-				.append(Integer.toHexString(chromosome.hashCode())).append("#")
+				.append(Integer.toHexString(genoType.hashCode())).append("#")
 				.append(fitness).toString();
 	}
 
 	public void print() {
 		System.out.println(this);
-		System.out.println(chromosome);
-		System.out.println(Arrays.deepToString(chromosome.phenoType));
+		System.out.println(genoType);
+		System.out.println(Arrays.deepToString(phenoType));
 	}
 }

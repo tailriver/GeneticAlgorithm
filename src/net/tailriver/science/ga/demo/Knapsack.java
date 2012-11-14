@@ -65,7 +65,7 @@ public class Knapsack implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final Chromosome c = individual.chromosome;
+			final Chromosome c = individual.genoType;
 			BitSet set = c.getBitSet(0);
 			int weightTotal = 0;
 			int priceTotal = 0;
@@ -79,7 +79,7 @@ public class Knapsack implements GeneticAlgorithmPlan {
 			if (weightTotal > weightMax) {
 				fitness -= 100 * (weightTotal - weightMax);
 			}
-			c.phenoType[0] = weightTotal;
+			individual.setPhenoType(0, weightTotal);
 			individual.setFitness(fitness);
 		}
 	}

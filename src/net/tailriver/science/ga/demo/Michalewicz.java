@@ -42,10 +42,10 @@ public class Michalewicz implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final Chromosome c = individual.chromosome;
+			final Chromosome c = individual.genoType;
 			double x = c.getScaled(0, -1, 2);
-			c.phenoType[0] = x;
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;
+			individual.setPhenoType(0, x);
 			individual.setFitness(fitness);
 		}
 	}

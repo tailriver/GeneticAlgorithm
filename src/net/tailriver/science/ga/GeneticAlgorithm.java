@@ -120,7 +120,7 @@ public class GeneticAlgorithm {
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
 		for (Individual i : population) {
-			i.chromosome.mutate(random, mutationRate);
+			i.genoType.mutate(random, mutationRate);
 		}
 	}
 
@@ -194,11 +194,11 @@ public class GeneticAlgorithm {
 	 */
 	public final static void crossOverSinglePoint(Individual x, Individual y,
 			Random random) {
-		int max = x.chromosome.bitLength;
+		int max = x.genoType.bitLength;
 		int p = random.nextInt(max);
 		BitSet mask = new BitSet(max);
 		mask.set(p, max, true);
-		Chromosome.swap(x.chromosome, y.chromosome, mask);
+		Chromosome.swap(x.genoType, y.genoType, mask);
 	}
 
 	/**
@@ -214,12 +214,12 @@ public class GeneticAlgorithm {
 	 */
 	public final static void crossOverTwoPoint(Individual x, Individual y,
 			Random random) {
-		int max = x.chromosome.bitLength;
+		int max = x.genoType.bitLength;
 		int p = random.nextInt(max);
 		int q = random.nextInt(max);
 		BitSet mask = new BitSet(max);
 		mask.set(Math.min(p, q), Math.max(p, q), true);
-		Chromosome.swap(x.chromosome, y.chromosome, mask);
+		Chromosome.swap(x.genoType, y.genoType, mask);
 	}
 
 	/**
@@ -235,12 +235,12 @@ public class GeneticAlgorithm {
 	 */
 	public static final void crossOverUniform(Individual x, Individual y,
 			Random random) {
-		int max = x.chromosome.bitLength;
+		int max = x.genoType.bitLength;
 		BitSet mask = new BitSet(max);
 		for (int i = 0; i < max; i++) {
 			mask.set(i, random.nextBoolean());
 		}
-		Chromosome.swap(x.chromosome, y.chromosome, mask);
+		Chromosome.swap(x.genoType, y.genoType, mask);
 	}
 
 	public static final List<Individual> selectElite(

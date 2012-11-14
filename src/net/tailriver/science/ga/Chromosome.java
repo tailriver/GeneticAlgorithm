@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 public class Chromosome {
+	public final int length;
 	public final int bitLength;
-	public final Object[] phenoType;
 
 	private final int[] offsetArray;
 	private final BitSet genoType;
@@ -27,18 +27,17 @@ public class Chromosome {
 		if (nbitList.isEmpty())
 			throw new IllegalArgumentException("list is empty");
 
-		int size = nbitList.size();
-		offsetArray = new int[size + 1];
+		length = nbitList.size();
+		offsetArray = new int[length + 1];
 		offsetArray[0] = 0;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < length; i++) {
 			int nbit = nbitList.get(i);
 			offsetArray[i + 1] = offsetArray[i] + nbit;
 			if (nbit < 1)
 				throw new IllegalArgumentException("list contains <1 value");
 		}
-		bitLength = offsetArray[size];
+		bitLength = offsetArray[length];
 		genoType = new BitSet(bitLength);
-		phenoType = new Object[size];
 	}
 
 	/**
@@ -49,7 +48,6 @@ public class Chromosome {
 	 * <li>{@code original.equals(copied)} is <code>true</code>.</li>
 	 * <li>Also {@code original.equalsSchema(copied)} is <code>true</code>.</li>
 	 * <li>Geno-type is deep-copied.</li>
-	 * <li>{@link Chromosome#phenoType} is shallow-copied.</li>
 	 * <li>{@link Chromosome#setOnChromosomeChanged(ChromosomeWatcher)} is
 	 * reseted (set to null).</li>
 	 * </ul>
@@ -59,14 +57,12 @@ public class Chromosome {
 	 */
 	public Chromosome(Chromosome original) {
 		// shared address
+		length = original.length;
 		bitLength = original.bitLength;
 		offsetArray = original.offsetArray;
 
 		// deep copy
 		genoType = (BitSet) original.genoType.clone();
-
-		// shallow copy
-		phenoType = original.phenoType.clone();
 
 		// watcher is null
 	}
@@ -168,9 +164,6 @@ public class Chromosome {
 	}
 
 	protected void notifyChromosomeChanged() {
-		for (int i = 0; i < phenoType.length; i++) {
-			phenoType[i] = null;
-		}
 		if (watcher != null) {
 			watcher.onChromosomeChanged();
 		}
@@ -252,8 +245,10 @@ public class Chromosome {
 				b.genoType.set(i, temp);
 			}
 		}
-		a.notifyChromosomeChanged();
-		b.notifyChromosomeChanged();
+		if (!mask.isEmpty()) {
+			a.notifyChromosomeChanged();
+			b.notifyChromosomeChanged();
+		}
 	}
 
 	/**
@@ -269,7 +264,7 @@ public class Chromosome {
 		if (obj instanceof Chromosome) {
 			Chromosome c = (Chromosome) obj;
 			return super.equals(obj) || genoType.equals(c.genoType)
-					&& Arrays.equals(phenoType, c.phenoType) && equalsSchema(c);
+					&& equalsSchema(c);
 		}
 		return false;
 	}
@@ -280,17 +275,18 @@ public class Chromosome {
 	 *            the reference object with which to compare.
 	 * @return {@code true} if {@code c == this} or they are created same
 	 *         condition in {@link Chromosome.Creator}; {@code false} otherwise.
+	 * @throws NullPointerException
+	 *             if {@code c} is null.
 	 */
-	public boolean equalsSchema(Chromosome c) {
-		return c != null
-				&& (c == this || Arrays.equals(offsetArray, c.offsetArray));
+	protected boolean equalsSchema(Chromosome c) {
+		return Arrays.equals(offsetArray, c.offsetArray);
 	}
 
 	@Override
 	public String toString() {
 		final char delimiter = ' ';
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0, imax = offsetArray.length - 1; i < imax; i++) {
+		for (int i = 0; i < length; i++) {
 			int nbit = offsetArray[i + 1] - offsetArray[i];
 			long[] array = getBitSet(i).toLongArray();
 			if (array.length == 0) {
@@ -311,7 +307,7 @@ public class Chromosome {
 	/**
 	 * Factory class for {@link Chromosome}.
 	 * 
-	 * @author shinsuke
+	 * @author tailriver
 	 * 
 	 */
 	public static class Creator {
