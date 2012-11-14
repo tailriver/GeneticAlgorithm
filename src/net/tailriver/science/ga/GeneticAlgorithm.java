@@ -189,7 +189,7 @@ public class GeneticAlgorithm {
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
-	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             if {@link GenoType}s of {@link Individual}s point same
 	 *             address, or they are incompatible.
 	 */
 	public final static void crossOverSinglePoint(Individual x, Individual y,
@@ -198,7 +198,7 @@ public class GeneticAlgorithm {
 		int p = random.nextInt(max);
 		BitSet mask = new BitSet(max);
 		mask.set(p, max, true);
-		Chromosome.swap(x.genoType, y.genoType, mask);
+		GenoType.swap(x.genoType, y.genoType, mask);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class GeneticAlgorithm {
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
-	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             if {@link GenoType}s of {@link Individual}s point same
 	 *             address, or they are incompatible.
 	 */
 	public final static void crossOverTwoPoint(Individual x, Individual y,
@@ -219,7 +219,7 @@ public class GeneticAlgorithm {
 		int q = random.nextInt(max);
 		BitSet mask = new BitSet(max);
 		mask.set(Math.min(p, q), Math.max(p, q), true);
-		Chromosome.swap(x.genoType, y.genoType, mask);
+		GenoType.swap(x.genoType, y.genoType, mask);
 	}
 
 	/**
@@ -230,7 +230,7 @@ public class GeneticAlgorithm {
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
-	 *             if {@link Chromosome}s of {@link Individual}s point same
+	 *             if {@link GenoType}s of {@link Individual}s point same
 	 *             address, or they are incompatible.
 	 */
 	public static final void crossOverUniform(Individual x, Individual y,
@@ -240,7 +240,7 @@ public class GeneticAlgorithm {
 		for (int i = 0; i < max; i++) {
 			mask.set(i, random.nextBoolean());
 		}
-		Chromosome.swap(x.genoType, y.genoType, mask);
+		GenoType.swap(x.genoType, y.genoType, mask);
 	}
 
 	public static final List<Individual> selectElite(

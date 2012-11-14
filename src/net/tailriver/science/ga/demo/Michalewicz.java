@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import net.tailriver.science.ga.Chromosome;
+import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.GeneticAlgorithm;
 import net.tailriver.science.ga.GeneticAlgorithmPlan;
 import net.tailriver.science.ga.Individual;
@@ -29,9 +29,9 @@ public class Michalewicz implements GeneticAlgorithmPlan {
 
 	@Override
 	public Individual inflateIndividual() {
-		Chromosome chromosome = new Chromosome.Creator().append(22).inflate();
-		chromosome.randomize(random);
-		return new Individual(chromosome);
+		GenoType genoType = new GenoType.Creator().append(22).inflate();
+		genoType.randomize(random);
+		return new Individual(genoType);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class Michalewicz implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final Chromosome c = individual.genoType;
+			final GenoType c = individual.genoType;
 			double x = c.getScaled(0, -1, 2);
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;
 			individual.setPhenoType(0, x);

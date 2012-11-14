@@ -9,9 +9,9 @@ public interface GeneticAlgorithmPlan {
 	 * Called from constructor of {@link GeneticAlgorithm}.
 	 * 
 	 * @return inflated {@link Individual}.
-	 * @see Chromosome.Creator
-	 * @see Chromosome#randomize(Random)
-	 * @see Individual#Individual(Chromosome)
+	 * @see GenoType.Creator
+	 * @see GenoType#randomize(Random)
+	 * @see Individual#Individual(GenoType)
 	 */
 	Individual inflateIndividual();
 
@@ -31,8 +31,8 @@ public interface GeneticAlgorithmPlan {
 	 * Called from some methods in {@link GeneticAlgorithm}.
 	 * 
 	 * <ol>
-	 * <li>Get {@link Chromosome}: {@link Individual#genoType}.
-	 * <li> {@link Chromosome#getLong(int)} or something like that to fetch
+	 * <li>Get {@link GenoType}: {@link Individual#genoType}.
+	 * <li> {@link GenoType#getLong(int)} or something like that to fetch
 	 * geno-type value.</li>
 	 * <li>(optional) Set pheno-type by
 	 * {@link Individual#setPhenoType(int, Object)}.</li>
@@ -54,8 +54,8 @@ public interface GeneticAlgorithmPlan {
 	 * <p>
 	 * You select one of method to specify a crossover strategy of the plan and
 	 * describe, that's all. If you want to use other strategy, you may need to
-	 * use {@link Chromosome#swap(Chromosome, Chromosome, java.util.BitSet)}
-	 * directly or extend {@link Chromosome} to modify geno-type.
+	 * use {@link GenoType#swap(GenoType, GenoType, java.util.BitSet)}
+	 * directly or extend {@link GenoType} to modify geno-type.
 	 * </p>
 	 * 
 	 * <p>

@@ -6,7 +6,7 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-public class Chromosome {
+public class GenoType {
 	public final int length;
 	public final int bitLength;
 
@@ -15,7 +15,7 @@ public class Chromosome {
 	private ChromosomeWatcher watcher;
 
 	/**
-	 * Create {@link Chromosome} from {@link Creator#inflate()}.
+	 * Create {@link GenoType} from {@link Creator#inflate()}.
 	 * 
 	 * @param nbitList
 	 * @throws NullPointerException
@@ -23,7 +23,7 @@ public class Chromosome {
 	 * @throws IllegalArgumentException
 	 *             if {@code nbitList} is empty or contains non-positive value.
 	 */
-	protected Chromosome(List<Integer> nbitList) {
+	protected GenoType(List<Integer> nbitList) {
 		if (nbitList.isEmpty())
 			throw new IllegalArgumentException("list is empty");
 
@@ -41,21 +41,21 @@ public class Chromosome {
 	}
 
 	/**
-	 * Copy {@link Chromosome} from another {@link Chromosome} object.
+	 * Copy {@link GenoType} from another {@link GenoType} object.
 	 * 
 	 * <ul>
 	 * <li>{@code original == copied} is <code>false</code>.
 	 * <li>{@code original.equals(copied)} is <code>true</code>.</li>
 	 * <li>Also {@code original.equalsSchema(copied)} is <code>true</code>.</li>
 	 * <li>Geno-type is deep-copied.</li>
-	 * <li>{@link Chromosome#setOnChromosomeChanged(ChromosomeWatcher)} is
+	 * <li>{@link GenoType#setOnChromosomeChanged(ChromosomeWatcher)} is
 	 * reseted (set to null).</li>
 	 * </ul>
 	 * 
 	 * @param original
-	 *            copy source of {@link Chromosome}.
+	 *            copy source of {@link GenoType}.
 	 */
-	public Chromosome(Chromosome original) {
+	public GenoType(GenoType original) {
 		// shared address
 		length = original.length;
 		bitLength = original.bitLength;
@@ -92,7 +92,7 @@ public class Chromosome {
 	 *            index of geno-type.
 	 * @return BitSet value of specified index of geno-type.
 	 * @throws ArrayIndexOutOfBoundsException
-	 * @see Chromosome#getLong(int)
+	 * @see GenoType#getLong(int)
 	 */
 	public BitSet getBitSet(int i) {
 		return genoType.get(offsetArray[i], offsetArray[i + 1]);
@@ -106,9 +106,9 @@ public class Chromosome {
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
 	 *             if the bit size of the specified index is more than 64 bit.
-	 * @see Chromosome#getBitSet(int)
-	 * @see Chromosome#getDouble(int)
-	 * @see Chromosome#getScaled(int, double, double)
+	 * @see GenoType#getBitSet(int)
+	 * @see GenoType#getDouble(int)
+	 * @see GenoType#getScaled(int, double, double)
 	 */
 	public long getLong(int i) {
 		int nbit = offsetArray[i + 1] - offsetArray[i];
@@ -128,7 +128,7 @@ public class Chromosome {
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
 	 *             if the bit size of the specified index is not 64 bit.
-	 * @see Chromosome#getLong(int)
+	 * @see GenoType#getLong(int)
 	 */
 	public double getDouble(int i) {
 		int nbit = offsetArray[i + 1] - offsetArray[i];
@@ -151,7 +151,7 @@ public class Chromosome {
 	 *         where {@code resolution} is 2<sup>nbit</sup> - 1.
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
-	 * @see Chromosome#getLong(int)
+	 * @see GenoType#getLong(int)
 	 */
 	public double getScaled(int i, double min, double max) {
 		int nbit = offsetArray[i + 1] - offsetArray[i];
@@ -224,15 +224,15 @@ public class Chromosome {
 	 * @param b
 	 *            object to swap.
 	 * @param mask
-	 *            A {@link BitSet} object. The {@link Chromosome}s swap where
+	 *            A {@link BitSet} object. The {@link GenoType}s swap where
 	 *            the bit is <code>true</code>.
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
-	 *             if {@link Chromosome}s point same address, or they are
+	 *             if {@link GenoType}s point same address, or they are
 	 *             incompatible ({@code a.equalsSchema(b) == false}).
 	 */
-	public static void swap(Chromosome a, Chromosome b, BitSet mask) {
+	public static void swap(GenoType a, GenoType b, BitSet mask) {
 		if (a == b)
 			throw new IllegalArgumentException("chromosomes have same address");
 		if (!a.equalsSchema(b))
@@ -261,8 +261,8 @@ public class Chromosome {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Chromosome) {
-			Chromosome c = (Chromosome) obj;
+		if (obj instanceof GenoType) {
+			GenoType c = (GenoType) obj;
 			return super.equals(obj) || genoType.equals(c.genoType)
 					&& equalsSchema(c);
 		}
@@ -274,11 +274,11 @@ public class Chromosome {
 	 * @param c
 	 *            the reference object with which to compare.
 	 * @return {@code true} if {@code c == this} or they are created same
-	 *         condition in {@link Chromosome.Creator}; {@code false} otherwise.
+	 *         condition in {@link GenoType.Creator}; {@code false} otherwise.
 	 * @throws NullPointerException
 	 *             if {@code c} is null.
 	 */
-	protected boolean equalsSchema(Chromosome c) {
+	protected boolean equalsSchema(GenoType c) {
 		return Arrays.equals(offsetArray, c.offsetArray);
 	}
 
@@ -305,7 +305,7 @@ public class Chromosome {
 	}
 
 	/**
-	 * Factory class for {@link Chromosome}.
+	 * Factory class for {@link GenoType}.
 	 * 
 	 * @author tailriver
 	 * 
@@ -348,14 +348,14 @@ public class Chromosome {
 		}
 
 		/**
-		 * Create {@link Chromosome} from this {@link Creator}.
+		 * Create {@link GenoType} from this {@link Creator}.
 		 * 
-		 * @return newly created {@link Chromosome} object.
+		 * @return newly created {@link GenoType} object.
 		 * @throws IllegalArgumentException
 		 *             if nothing appended.
 		 */
-		public Chromosome inflate() {
-			return new Chromosome(nbitList);
+		public GenoType inflate() {
+			return new GenoType(nbitList);
 		}
 	}
 }

@@ -3,18 +3,18 @@ package net.tailriver.science.ga;
 import java.util.Arrays;
 
 public class Individual implements ChromosomeWatcher, Comparable<Individual> {
-	public final Chromosome genoType;
+	public final GenoType genoType;
 	private final Object[] phenoType;
 	private double fitness;
 
-	public Individual(Chromosome chromosome) {
-		this.genoType = chromosome;
-		phenoType = new Object[chromosome.length];
+	public Individual(GenoType genoType) {
+		this.genoType = genoType;
+		phenoType = new Object[genoType.length];
 		fitness = Double.NaN;
 	}
 
 	public Individual(Individual original) {
-		genoType = new Chromosome(original.genoType);
+		genoType = new GenoType(original.genoType);
 		phenoType = original.phenoType.clone();
 		fitness = original.fitness;
 	}

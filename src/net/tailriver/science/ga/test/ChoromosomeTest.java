@@ -10,19 +10,19 @@ import static org.junit.Assert.assertTrue;
 import java.util.BitSet;
 import java.util.Random;
 
-import net.tailriver.science.ga.Chromosome;
+import net.tailriver.science.ga.GenoType;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class ChoromosomeTest {
-	Chromosome c;
+	GenoType c;
 	Random random;
 	BitSet mask;
 
 	@Before
 	public void setUp() {
-		c = new Chromosome.Creator().append(4, 8).inflate();
+		c = new GenoType.Creator().append(4, 8).inflate();
 		random = new Random();
 		mask = new BitSet();
 	}
@@ -30,7 +30,7 @@ public class ChoromosomeTest {
 	@Test
 	public void testChromosome() {
 		random = new Random(42342352);
-		c = new Chromosome.Creator().append(8, 1).append(34, 1).inflate();
+		c = new GenoType.Creator().append(8, 1).append(34, 1).inflate();
 
 		c.randomize(random);
 		assertEquals(2, c.length);
@@ -46,7 +46,7 @@ public class ChoromosomeTest {
 	@Test
 	public void testChromosomeDouble() {
 		random = new Random(245238909421L);
-		c = new Chromosome.Creator().append(64).inflate();
+		c = new GenoType.Creator().append(64).inflate();
 
 		c.randomize(random);
 		String binary = "0100000110110001011010010010001001100010110100110111010100001000";
@@ -58,7 +58,7 @@ public class ChoromosomeTest {
 	@Test
 	public void testRandomize() {
 		random = new Random(343129087);
-		Chromosome p = new Chromosome(c);
+		GenoType p = new GenoType(c);
 		p.randomize(random);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
 		assertEquals("1110 0010 0000 1111 0001 1110 1010 1100", p.toString());
@@ -70,22 +70,22 @@ public class ChoromosomeTest {
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", c.toString());
 
 		// should not change
-		Chromosome p = new Chromosome(c);
+		GenoType p = new GenoType(c);
 		p.mutate(random, 0);
 		assertEquals("0000 0000 0000 0000 0000 0000 0000 0000", p.toString());
 
 		// should flip about 3 bits
-		Chromosome q = new Chromosome(c);
+		GenoType q = new GenoType(c);
 		q.mutate(random, 0.1);
 		assertEquals("0010 0001 0000 0000 0000 0100 0000 0000", q.toString());
 
 		// should flip about half of all bits
-		Chromosome r = new Chromosome(c);
+		GenoType r = new GenoType(c);
 		r.mutate(random, 0.5);
 		assertEquals("1011 1100 1000 1111 1001 1110 1111 0100", r.toString());
 
 		// should invert all bits
-		Chromosome s = new Chromosome(c);
+		GenoType s = new GenoType(c);
 		s.mutate(random, 1);
 		assertEquals("1111 1111 1111 1111 1111 1111 1111 1111", s.toString());
 	}
@@ -93,21 +93,21 @@ public class ChoromosomeTest {
 	@Test
 	public void testSwap() {
 		random = new Random(4329);
-		Chromosome a = new Chromosome(c);
-		Chromosome b = new Chromosome(c);
+		GenoType a = new GenoType(c);
+		GenoType b = new GenoType(c);
 		a.randomize(random);
 		b.randomize(random);
 		assertEquals("1110 0001 0101 1000 1011 1111 1101 1111", a.toString());
 		assertEquals("1110 0101 1100 0101 0011 1011 0011 0010", b.toString());
 		mask.set(6, 22, true);
-		Chromosome.swap(a, b, mask);
+		GenoType.swap(a, b, mask);
 		assertEquals("1110 0101 1100 0101 0011 1111 1101 1111", a.toString());
 		assertEquals("1110 0001 0101 1000 1011 1011 0011 0010", b.toString());
 	}
 
 	@Test
 	public void testCopy() {
-		Chromosome copy = new Chromosome(c);
+		GenoType copy = new GenoType(c);
 		assertNotSame(c, copy);
 		assertTrue(c.equals(copy));
 		assertEquals(c.toString(), copy.toString());
@@ -118,57 +118,57 @@ public class ChoromosomeTest {
 
 	@Test
 	public void testCreator() {
-		Chromosome.Creator creator = new Chromosome.Creator();
+		GenoType.Creator creator = new GenoType.Creator();
 		assertNotNull(creator);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorNothingAppended() {
-		new Chromosome.Creator().inflate();
+		new GenoType.Creator().inflate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorAppendInvaild1() {
-		new Chromosome.Creator().append(0);
+		new GenoType.Creator().append(0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorAppendInvaild2() {
-		new Chromosome.Creator().append(1, 0);
+		new GenoType.Creator().append(1, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testCreatorAppendInvaild3() {
-		new Chromosome.Creator().append(0, 1);
+		new GenoType.Creator().append(0, 1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetDouble63() {
-		c = new Chromosome.Creator().append(63).inflate();
+		c = new GenoType.Creator().append(63).inflate();
 		c.getDouble(0);
 	}
 
 	@Test
 	public void testGetDouble64() {
-		c = new Chromosome.Creator().append(64).inflate();
+		c = new GenoType.Creator().append(64).inflate();
 		c.getDouble(0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetDouble65() {
-		c = new Chromosome.Creator().append(65).inflate();
+		c = new GenoType.Creator().append(65).inflate();
 		c.getDouble(0);
 	}
 
 	@Test
 	public void testGetLong64() {
-		c = new Chromosome.Creator().append(64).inflate();
+		c = new GenoType.Creator().append(64).inflate();
 		c.getLong(0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetLong65() {
-		c = new Chromosome.Creator().append(65).inflate();
+		c = new GenoType.Creator().append(65).inflate();
 		c.getLong(0);
 	}
 
@@ -199,22 +199,22 @@ public class ChoromosomeTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSwapIncompatibleChoromosome() {
-		Chromosome a = new Chromosome.Creator().append(4, 8).inflate();
-		Chromosome b = new Chromosome.Creator().append(4, 9).inflate();
+		GenoType a = new GenoType.Creator().append(4, 8).inflate();
+		GenoType b = new GenoType.Creator().append(4, 9).inflate();
 		mask.set(0, 1, true);
-		Chromosome.swap(a, b, mask);
+		GenoType.swap(a, b, mask);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSwapSameAddressChromosome() {
 		mask.set(0, 1, true);
-		Chromosome.swap(c, c, mask);
+		GenoType.swap(c, c, mask);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void testSwapInvalidMask() {
-		Chromosome a = new Chromosome(c);
-		Chromosome b = new Chromosome(c);
-		Chromosome.swap(a, b, null);
+		GenoType a = new GenoType(c);
+		GenoType b = new GenoType(c);
+		GenoType.swap(a, b, null);
 	}
 }

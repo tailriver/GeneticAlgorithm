@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-import net.tailriver.science.ga.Chromosome;
+import net.tailriver.science.ga.GenoType;
 import net.tailriver.science.ga.GeneticAlgorithm;
 import net.tailriver.science.ga.GeneticAlgorithmPlan;
 import net.tailriver.science.ga.Individual;
@@ -51,10 +51,10 @@ public class Knapsack implements GeneticAlgorithmPlan {
 
 	@Override
 	public Individual inflateIndividual() {
-		Chromosome chromosome = new Chromosome.Creator().append(50, 1)
+		GenoType genoType = new GenoType.Creator().append(50, 1)
 				.inflate();
-		chromosome.randomize(random);
-		return new Individual(chromosome);
+		genoType.randomize(random);
+		return new Individual(genoType);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class Knapsack implements GeneticAlgorithmPlan {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			final Chromosome c = individual.genoType;
+			final GenoType c = individual.genoType;
 			BitSet set = c.getBitSet(0);
 			int weightTotal = 0;
 			int priceTotal = 0;
