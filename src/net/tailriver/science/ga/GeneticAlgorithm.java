@@ -66,9 +66,7 @@ public class GeneticAlgorithm<T extends Individual> {
 	 * @param crossoverRate
 	 * @param generationGap
 	 * @throws IllegalArgumentException
-	 *             if arguments contain NaN.
-	 * @throws IndexOutOfBoundsException
-	 *             if arguments are less than 0 or greater than 1.
+	 *             if arguments are NaN, less than 0 or greater than 1.
 	 */
 	@SuppressWarnings("unchecked")
 	public void cross(double crossoverRate, double generationGap) {
@@ -107,8 +105,10 @@ public class GeneticAlgorithm<T extends Individual> {
 	 * 
 	 * @param mutationRate
 	 * @throws NullPointerException
+	 *             if {@link GeneticAlgorithmPlan#getRandom()} returns null.
 	 * @throws IllegalArgumentException
-	 * @throws IndexOutOfBoundsException
+	 *             if {@code mutationRate} is NaN, less than 0 or greater than
+	 *             1.
 	 */
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
@@ -116,13 +116,17 @@ public class GeneticAlgorithm<T extends Individual> {
 			i.mutate(random, mutationRate);
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * @see GeneticAlgorithmPlan#applySelection(List)
+	 */
 	public void select() {
 		sort();
 		List<T> next = new ArrayList<>();
 		List<T> current = (List<T>) Arrays.asList(population);
 		for (T w : plan.applySelection(current)) {
-			next.add((next.contains(w) ? (T) w.clone() : w));
+			@SuppressWarnings("unchecked")
+			T winner = next.contains(w) ? (T) w.clone() : w;
+			next.add(winner);
 		}
 		int size = population.length;
 		if (next.size() != size) {

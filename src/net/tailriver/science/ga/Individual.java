@@ -123,9 +123,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 * @throws NullPointerException
 	 *             if {@code random} is null.
 	 * @throws IllegalArgumentException
-	 *             if {@code probability} is {@code NaN}.
-	 * @throws IndexOutOfBoundsException
-	 *             if {@code (probability < 0 || probability > 1)}.
+	 *             if {@code probability} is NaN, less than 0 or greater than 1.
 	 */
 	public void mutate(Random random, double probability) {
 		GeneticAlgorithm.probabilityCheck("mutation rate", probability);
