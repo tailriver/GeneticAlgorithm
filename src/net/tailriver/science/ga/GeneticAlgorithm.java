@@ -14,10 +14,9 @@ public class GeneticAlgorithm<T extends Individual> {
 	private Comparator<? super T> comparator;
 	private boolean sorted;
 
-	@SuppressWarnings("unchecked")
 	public GeneticAlgorithm(GeneticAlgorithmPlan<T> plan, int size) {
 		this.plan = plan;
-		population = (T[]) new Individual[size];
+		population = makePopulationArray(size);
 
 		for (int i = 0; i < size; i++) {
 			T individual = plan.inflateIndividual();
@@ -55,10 +54,9 @@ public class GeneticAlgorithm<T extends Individual> {
 	 *             if {@code rank} is less than 1 or greater than number of
 	 *             population.
 	 */
-	@SuppressWarnings("unchecked")
 	public T getRankAt(int rank) {
 		sort();
-		return (T) population[rank - 1].clone();
+		return makeClone(population[rank - 1]);
 	}
 
 	/**
@@ -68,7 +66,6 @@ public class GeneticAlgorithm<T extends Individual> {
 	 * @throws IllegalArgumentException
 	 *             if arguments are NaN, less than 0 or greater than 1.
 	 */
-	@SuppressWarnings("unchecked")
 	public void cross(double crossoverRate, double generationGap) {
 		probabilityCheck("crossover rate", crossoverRate);
 		probabilityCheck("generation gap", generationGap);
@@ -81,8 +78,8 @@ public class GeneticAlgorithm<T extends Individual> {
 			T x = before.get(i);
 			T y = before.get(random.nextInt(size));
 			if (random.nextDouble() < crossoverRate) {
-				x = (T) x.clone();
-				y = (T) y.clone();
+				x = makeClone(x);
+				y = makeClone(y);
 				plan.applyCrossOver(x, y);
 			}
 			after.add(x);
@@ -112,7 +109,7 @@ public class GeneticAlgorithm<T extends Individual> {
 	 */
 	public void mutate(double mutationRate) {
 		Random random = plan.getRandom();
-		for (Individual i : population)
+		for (T i : population)
 			i.mutate(random, mutationRate);
 	}
 
@@ -124,8 +121,7 @@ public class GeneticAlgorithm<T extends Individual> {
 		List<T> next = new ArrayList<>();
 		List<T> current = Arrays.asList(population);
 		for (T w : plan.applySelection(current)) {
-			@SuppressWarnings("unchecked")
-			T winner = next.contains(w) ? (T) w.clone() : w;
+			T winner = next.contains(w) ? makeClone(w) : w;
 			next.add(winner);
 		}
 		int size = population.length;
@@ -169,7 +165,7 @@ public class GeneticAlgorithm<T extends Individual> {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (Individual i : population) {
+		for (T i : population) {
 			sb.append(i).append('\n');
 		}
 		return sb.toString();
@@ -206,5 +202,15 @@ public class GeneticAlgorithm<T extends Individual> {
 		if (!(probability >= 0 && probability <= 1))
 			throw new IllegalArgumentException(name + " must be [0,1]: "
 					+ probability);
+	}
+
+	@SuppressWarnings("unchecked")
+	private final T makeClone(Individual o) {
+		return (T) o.clone();
+	}
+
+	@SuppressWarnings("unchecked")
+	private final T[] makePopulationArray(int size) {
+		return (T[]) new Individual[size];
 	}
 }
