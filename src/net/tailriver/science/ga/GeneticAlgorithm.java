@@ -173,21 +173,18 @@ public class GeneticAlgorithm<T extends Individual> {
 
 	public static final <T extends Individual> List<T> selectElite(
 			List<T> candidates, int n) {
-		if (n < 1 || n > candidates.size()) {
+		if (n < 1)
 			throw new IllegalArgumentException();
-		}
 		return candidates.subList(0, n);
 	}
 
 	public static final <T extends Individual> List<T> selectTournament(
 			List<T> candidates, Random random, int n, int k) {
-		int size = candidates.size();
-		if (n < 1 || k < 2 || n > size) {
+		if (n < 1 || k < 2)
 			throw new IllegalArgumentException();
-		}
 
 		List<T> winner = new ArrayList<>();
-		for (int i = 0; i < n; i++) {
+		for (int i = 0, size = candidates.size(); i < n; i++) {
 			int m = random.nextInt(size);
 			for (int j = 1; j < k; j++) {
 				m = Math.min(m, random.nextInt(size));
