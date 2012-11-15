@@ -162,6 +162,10 @@ public class GeneticAlgorithm<T extends Individual> {
 		sorted = true;
 	}
 
+	protected boolean isSorted() {
+		return sorted;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
