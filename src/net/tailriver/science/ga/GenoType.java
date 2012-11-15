@@ -295,7 +295,7 @@ public class GenoType implements Serializable {
 	 * 
 	 */
 	public static class Creator {
-		private List<Integer> nbitList = new ArrayList<>();
+		protected List<Integer> nbitList = new ArrayList<>();
 
 		/**
 		 * 
