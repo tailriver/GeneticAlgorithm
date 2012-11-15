@@ -19,7 +19,7 @@ public class GenoType implements Serializable {
 	 * Length of the chromosome. It does not equals to the bit length
 	 * (information length) of chromosome.
 	 */
-	public transient final int length;
+	public final int length;
 
 	/**
 	 * Offset information of chromosome. The length must be {@link #length} - 1.
