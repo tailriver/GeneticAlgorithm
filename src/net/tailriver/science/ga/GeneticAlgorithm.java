@@ -122,7 +122,7 @@ public class GeneticAlgorithm<T extends Individual> {
 	public void select() {
 		sort();
 		List<T> next = new ArrayList<>();
-		List<T> current = (List<T>) Arrays.asList(population);
+		List<T> current = Arrays.asList(population);
 		for (T w : plan.applySelection(current)) {
 			@SuppressWarnings("unchecked")
 			T winner = next.contains(w) ? (T) w.clone() : w;
