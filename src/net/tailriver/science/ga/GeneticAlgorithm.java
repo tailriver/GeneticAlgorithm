@@ -129,9 +129,9 @@ public class GeneticAlgorithm<T extends Individual> {
 			next.add(winner);
 		}
 		int size = population.length;
-		if (next.size() != size) {
-			throw new IllegalStateException();
-		}
+		if (next.size() != size)
+			throw new IllegalStateException("incosistent size: expected "
+					+ size + ", got " + next.size());
 
 		for (int i = 0; i < size; i++) {
 			population[i].deactivateWatcher();
