@@ -1,7 +1,6 @@
 package net.tailriver.science.ga.demo;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -51,7 +50,7 @@ public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 
 	@Override
 	public Individual inflateIndividual() {
-		GenoType genoType = new GenoType.Creator().append(50, 1).inflate();
+		GenoType genoType = new GenoType.Creator().append(1, 50).inflate();
 		Individual individual = new Individual(genoType);
 		individual.randomize(random);
 		return individual;
@@ -65,11 +64,10 @@ public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 	@Override
 	public void calculateFitness(Collection<Individual> population) {
 		for (Individual individual : population) {
-			BitSet set = individual.getGenoTypeBitSet(0);
 			int weightTotal = 0;
 			int priceTotal = 0;
 			for (int i = 0; i < weights.length; i++) {
-				if (set.get(i)) {
+				if (individual.getGenoTypeBoolean(i)) {
 					weightTotal += weights[i];
 					priceTotal += prices[i];
 				}
