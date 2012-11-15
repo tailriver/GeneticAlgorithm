@@ -13,14 +13,12 @@ import net.tailriver.science.ga.Individual;
 /**
  * Solves knapsack problem.
  * 
- * When maximum weight is 200, the good results seems to be ...
- * <ol>
- * <li>856: <tt>10111100111010010110111111010010011111110110111110</tt></li>
- * <li>854: <tt>01111101100110010001001011110111101001101101111111</tt></li>
- * <li>841: <tt>01111101100110011011001011110101101001101101111101</tt></li>
- * <li>838: <tt>10111101100110011001001110010111111001111100111111</tt></li>
- * <li>833: <tt>00111101100111011101100011101111101001111100101100</tt></li>
- * </ol>
+ * When maximum weight is 200, the best result seems to be ...
+ * <ul>
+ * <li>Price total: 883</li>
+ * <li>Hash code of chromosome: 4bbf6d9b</li>
+ * <li>Chromosome: <tt>11111100110110010111110111010010011011100100111110</tt></li>
+ * </ul>
  * 
  * <h3>Reference</h3>
  * <ul>
