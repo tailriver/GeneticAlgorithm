@@ -5,34 +5,95 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
 
+/**
+ * This class represents an individual. It has a raw {@link GenoType genetic
+ * code object} (so called geno-type), an aggregation of objects (so called
+ * pheno-type) and a real number value (so called fitness).
+ * 
+ * <p>
+ * Pheno-type can store arbitrary type of object. The stored data is not used in
+ * library (except methods which describe internal state of this object, such as
+ * {@link #toString()}). However, it is invalidated (set to null) when geno-type
+ * is changed by {@link #mutate(Random, double) mutation} or crossover
+ * operations.
+ * 
+ * @author tailriver
+ * 
+ */
 public class Individual implements Cloneable, Comparable<Individual>,
 		GenoTypeWatcher, Serializable {
 	private static final long serialVersionUID = -35172888649712656L;
 
+	/**
+	 * @serial
+	 */
 	protected GenoType genoType;
+
+	/**
+	 * aggregation of pheno-type objects.
+	 */
 	protected transient Object[] phenoType;
+
+	/**
+	 * fitness value. When it is {@link Double#NaN}, it represents this and
+	 * contents of pheno-type are invalid and need to be recalculated.
+	 */
 	private transient double fitness;
 
+	/**
+	 * 
+	 * @param genoType
+	 */
 	public Individual(GenoType genoType) {
 		setGenoType(genoType);
 	}
 
+	/**
+	 * Gets boolean value from specified index of chromosome.
+	 * 
+	 * @param i
+	 *            index of chromosome.
+	 * @return boolean value of specified index of chromosome.
+	 * @throws ArrayIndexOutOfBoundsException
+	 * @throws IllegalArgumentException
+	 * @see GenoType#getBoolean(int)
+	 */
 	public final boolean getGenoTypeBoolean(int i) {
 		return genoType.getBoolean(i);
 	}
 
+	/**
+	 * Gets {@link BitSet} value from specified index of chromosome.
+	 * 
+	 * @param i
+	 *            index of chromosome.
+	 * @return BitSet value of specified index of chromosome.
+	 * @throws ArrayIndexOutOfBoundsException
+	 * @see GenoType#getBitSet(int)
+	 */
 	public final BitSet getGenoTypeBitSet(int i) {
 		return genoType.getBitSet(i);
 	}
 
+	/**
+	 * Gets long value from specified index of chromosome.
+	 * 
+	 * @param i
+	 *            index of chromosome.
+	 * @return long value of specified index of chromosome.
+	 * @throws ArrayIndexOutOfBoundsException
+	 * @throws IllegalArgumentException
+	 * @see GenoType#getLong(int)
+	 */
 	public final long getGenoTypeLong(int i) {
 		return genoType.getLong(i);
 	}
 
 	/**
+	 * Gets full-ranged double value from specified index of chromosome.
 	 * 
 	 * @param i
-	 *            index of geno-type.
+	 *            index of chromosome.
 	 * @return {@code Double.longBitsToDouble(getLong(i))}.
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
@@ -47,9 +108,10 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	}
 
 	/**
+	 * Gets linear-scaled real number value from specified index of chromosome.
 	 * 
 	 * @param i
-	 *            index of geno-type.
+	 *            index of chromosome.
 	 * @param min
 	 *            minimum value (inclusive).
 	 * @param max
@@ -58,6 +120,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 *         where {@code resolution} is 2<sup>nbit</sup> - 1.
 	 * @throws ArrayIndexOutOfBoundsException
 	 * @throws IllegalArgumentException
+	 * @see GenoType#getLong(int)
 	 */
 	public final double getGenoTypeDouble(int i, double min, double max) {
 		int nbit = genoType.getLength(i);
@@ -65,28 +128,77 @@ public class Individual implements Cloneable, Comparable<Individual>,
 		return min + genoType.getLong(i) / resolution * (max - min);
 	}
 
+	/**
+	 * Sets a {@link GenoType} object to the instance.
+	 * 
+	 * @param genoType
+	 *            a geno-type object.
+	 * @throws NullPointerException
+	 *             if {@code genoType} is <code>null</code>.
+	 */
 	public final void setGenoType(GenoType genoType) {
 		this.genoType = genoType;
 		phenoType = new Object[genoType.length];
 		fitness = Double.NaN;
 	}
 
+	/**
+	 * Gets a pheno-type object stored at the specific index of chromosome. You
+	 * may need to cast it correctly because it always returns as a
+	 * {@link Object}.
+	 * 
+	 * @param i
+	 *            index of chromosome.
+	 * @return stored object in specified index of chromosome. It may return
+	 *         <code>null</code> if it has no stored object or invalidated due
+	 *         to mutation and crossover operations.
+	 */
 	public final Object getPhenoType(int i) {
 		return phenoType[i];
 	}
 
+	/**
+	 * Sets an arbitrary object as a pheno-type object at the specific index of
+	 * chromosome. Note stored objects are invalidated automatically and fill
+	 * <code>null</code> when change of geno-type occurs. So you should not
+	 * think that stored objects hold permanently.
+	 * 
+	 * @param i
+	 *            index of chromosome.
+	 * @param phenoType
+	 *            object to store.
+	 */
 	public final void setPhenoType(int i, Object phenoType) {
 		this.phenoType[i] = phenoType;
 	}
 
+	/**
+	 * Checks the fitness value (by {@link #setFitness(double)}) is valid or
+	 * not. If it returns <code>true</code>, fitness value and stored pheno-type
+	 * objects are keep its previous state.
+	 * 
+	 * @return <code>true</code> if fitness is valid; <code>false</code>
+	 *         otherwise.
+	 */
 	public final boolean hasFitness() {
 		return !Double.isNaN(fitness);
 	}
 
+	/**
+	 * Gets fitness value.
+	 * 
+	 * @return fitness value; {@link Double#NaN} if fitness is invalid.
+	 */
 	public final double getFitness() {
 		return fitness;
 	}
 
+	/**
+	 * Sets calculated fitness value.
+	 * 
+	 * @param fitness
+	 *            fitness value. It should not be a {@link Double#NaN}.
+	 */
 	public final void setFitness(double fitness) {
 		this.fitness = fitness;
 	}
@@ -100,11 +212,12 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	}
 
 	/**
+	 * Calls {@code mutate(random, 0.5)}.
 	 * 
 	 * @param random
 	 *            random seed.
 	 * @throws NullPointerException
-	 *             if {@code random} is null.
+	 *             if {@code random} is <code>null</code>.
 	 */
 	public void randomize(Random random) {
 		mutate(random, 0.5);
@@ -117,7 +230,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 * @param probability
 	 *            probability of mutation happens.
 	 * @throws NullPointerException
-	 *             if {@code random} is null.
+	 *             if {@code random} is <code>null</code>.
 	 * @throws IllegalArgumentException
 	 *             if {@code probability} is NaN, less than 0 or greater than 1.
 	 */
@@ -133,21 +246,32 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	}
 
 	/**
+	 * Calls {@code compareTo(o) > 0}. It always returns <code>true</code> if
+	 * {@code o} is <code>null</code>.
 	 * 
 	 * @param o
-	 * @return <code>true</code> if this is greater than {@code o};
-	 *         <code>false</code> otherwise.
+	 *            the object to be compared.
+	 * @return <code>true</code> if this is greater than {@code o} or {@code o}
+	 *         is <code>null</code>; <code>false</code> otherwise.
+	 * @throws IllegalStateException
+	 *             if fitness value of this and/or {@code o} is invalid.
+	 * @see #isLessThan(Individual)
 	 */
 	public final boolean isGreaterThan(Individual o) {
 		return o == null || compareTo(o) > 0;
 	}
 
 	/**
-	 * This implementation calls {@code compareTo(o) < 0}.
+	 * Calls {@code compareTo(o) < 0}. It always returns <code>true</code> if
+	 * {@code o} is <code>null</code>.
 	 * 
 	 * @param o
-	 * @return <code>true</code> if this is less than {@code o};
-	 *         <code>false</code> otherwise.
+	 *            the object to be compared.
+	 * @return <code>true</code> if this is less than {@code o} or {@code o} is
+	 *         <code>null</code>; <code>false</code> otherwise.
+	 * @throws IllegalStateException
+	 *             if fitness value of this and/or {@code o} is invalid.
+	 * @see #isGreaterThan(Individual)
 	 */
 	public final boolean isLessThan(Individual o) {
 		return o == null || compareTo(o) < 0;
@@ -161,6 +285,18 @@ public class Individual implements Cloneable, Comparable<Individual>,
 		fitness = Double.NaN;
 	}
 
+	/**
+	 * Note: this comparator imposes orderings that are inconsistent with
+	 * equals.
+	 * 
+	 * @throws NullPointerException
+	 *             {@inheritDoc}
+	 * @throws IllegalStateException
+	 *             if fitness value of this and/or the specified object is
+	 *             invalid.
+	 * @see #isGreaterThan(Individual)
+	 * @see #isLessThan(Individual)
+	 */
 	@Override
 	public int compareTo(Individual o) {
 		if (hasFitness() && o.hasFitness()) {
@@ -206,6 +342,11 @@ public class Individual implements Cloneable, Comparable<Individual>,
 		return Arrays.deepToString(phenoType);
 	}
 
+	/**
+	 * @see #toString()
+	 * @see #toGenoTypeString()
+	 * @see #toPhenoTypeString()
+	 */
 	public void print() {
 		System.out.println(this);
 		System.out.println(toGenoTypeString());

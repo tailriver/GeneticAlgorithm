@@ -25,16 +25,28 @@ public class GeneticAlgorithm<T extends Individual> {
 		}
 	}
 
+	/**
+	 * Sets a comparator to determine the order of the individuals (by value of
+	 * fitness).
+	 * 
+	 * @param comparator
+	 *            the comparator to determine the order of the individuals. A
+	 *            {@code null} value indicates that the elements'
+	 *            {@linkplain Comparable natural ordering} should be used.
+	 */
 	public void setComparator(Comparator<? super T> comparator) {
 		this.comparator = comparator;
 		sorted = false;
 	}
 
 	/**
+	 * Sets a simple comparator to determine the order of the individuals. A
+	 * <code>true</code> value indicates that the elements' reverse order of
+	 * natural ordering should be used. A <code>false</code> values indicates
+	 * that the elements' natural ordering should be used.
 	 * 
 	 * @param reverseOrder
-	 *            if <code>true</code>
-	 * 
+	 * @see #setComparator(Comparator)
 	 */
 	public void setReverseOrder(boolean reverseOrder) {
 		setComparator(reverseOrder ? Collections.reverseOrder() : null);
