@@ -71,10 +71,6 @@ public class Individual implements Cloneable, Comparable<Individual>,
 		fitness = Double.NaN;
 	}
 
-	public final Mask getMask() {
-		return genoType.getMask();
-	}
-
 	public final Object getPhenoType(int i) {
 		return phenoType[i];
 	}
@@ -128,7 +124,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	public void mutate(Random random, double probability) {
 		GeneticAlgorithm.probabilityCheck("mutation rate", probability);
 
-		Mask mask = getMask();
+		Mask mask = genoType.getMask();
 		for (int i = 0, max = mask.length; i < max; i++) {
 			if (random.nextDouble() < probability)
 				mask.set(i);
@@ -188,7 +184,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 		try {
 			Individual clone = (Individual) super.clone();
 			clone.genoType = new GenoType(genoType);
-			clone.phenoType = phenoType.clone();
+			clone.phenoType = Arrays.copyOf(phenoType, phenoType.length);
 			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new InternalError();
@@ -229,7 +225,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 */
 	public static void crossOverSinglePoint(Individual x, Individual y,
 			Random random) {
-		Mask mask = x.getMask();
+		Mask mask = x.genoType.getMask();
 		int p = random.nextInt(mask.length);
 		mask.set(p, mask.length);
 		GenoType.swap(x.genoType, y.genoType, mask);
@@ -248,7 +244,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 */
 	public static void crossOverTwoPoint(Individual x, Individual y,
 			Random random) {
-		Mask mask = x.getMask();
+		Mask mask = x.genoType.getMask();
 		int p = random.nextInt(mask.length);
 		int q = random.nextInt(mask.length);
 		mask.set(Math.min(p, q), Math.max(p, q));
@@ -268,7 +264,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 */
 	public static void crossOverUniform(Individual x, Individual y,
 			Random random) {
-		Mask mask = x.getMask();
+		Mask mask = x.genoType.getMask();
 		for (int i = 0, max = mask.length; i < max; i++) {
 			if (random.nextBoolean())
 				mask.set(i);
