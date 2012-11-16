@@ -169,9 +169,9 @@ public class GenoType implements Serializable {
 	}
 
 	private final void checkLongRange(int i) {
-		if (getLength(i) > 64)
-			throw new IllegalArgumentException("index [" + i
-					+ "] must be 64 bit or less");
+		if (getLength(i) > Long.SIZE)
+			throw new IllegalArgumentException("index [" + i + "] must be "
+					+ Long.SIZE + " bit or less");
 	}
 
 	public void setGenoTypeWatcher(GenoTypeWatcher watcher) {

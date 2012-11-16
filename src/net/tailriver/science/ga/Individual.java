@@ -101,9 +101,9 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 * @see GenoType#getLong(int)
 	 */
 	public final double getGenoTypeDouble(int i) {
-		if (genoType.getLength(i) != 64)
-			throw new IllegalArgumentException(
-					"GenoType must be 64 bit for index: " + i);
+		if (genoType.getLength(i) != Double.SIZE)
+			throw new IllegalArgumentException("GenoType must be "
+					+ Double.SIZE + " bit for index: " + i);
 		return Double.longBitsToDouble(genoType.getLong(i));
 	}
 
@@ -198,8 +198,12 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 * 
 	 * @param fitness
 	 *            fitness value. It should not be a {@link Double#NaN}.
+	 * @throws IllegalArgumentException
+	 *             if {@code fitness} is NaN.
 	 */
 	public final void setFitness(double fitness) {
+		if (Double.isNaN(fitness))
+			throw new IllegalArgumentException("fitness is NaN");
 		this.fitness = fitness;
 	}
 
@@ -299,10 +303,10 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	 */
 	@Override
 	public int compareTo(Individual o) {
-		if (hasFitness() && o.hasFitness()) {
+		if (hasFitness() && o.hasFitness())
 			return Double.compare(fitness, o.fitness);
-		}
-		throw new IllegalStateException("invalid fitness value");
+		throw new IllegalStateException("invalid fitness: "
+				+ (hasFitness() ? o : this));
 	}
 
 	@Override
@@ -329,9 +333,7 @@ public class Individual implements Cloneable, Comparable<Individual>,
 
 	@Override
 	public String toString() {
-		return new StringBuilder()
-				.append(Integer.toHexString(genoType.hashCode())).append("#")
-				.append(fitness).toString();
+		return Integer.toHexString(genoType.hashCode()) + '#' + fitness;
 	}
 
 	public String toGenoTypeString() {

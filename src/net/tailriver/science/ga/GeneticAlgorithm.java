@@ -160,12 +160,6 @@ public class GeneticAlgorithm<T extends Individual> {
 			return;
 
 		plan.calculateFitness(Arrays.asList(population));
-		for (T individual : population) {
-			if (!individual.hasFitness())
-				throw new IllegalStateException("fitness is NaN: "
-						+ individual.toString());
-		}
-
 		Arrays.sort(population, comparator);
 		sorted = true;
 	}
@@ -186,14 +180,16 @@ public class GeneticAlgorithm<T extends Individual> {
 	public static final <T extends Individual> List<T> selectElite(
 			List<T> candidates, int n) {
 		if (n < 1)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("n < 1: " + n);
 		return candidates.subList(0, n);
 	}
 
 	public static final <T extends Individual> List<T> selectTournament(
 			List<T> candidates, Random random, int n, int k) {
-		if (n < 1 || k < 2)
-			throw new IllegalArgumentException();
+		if (n < 1)
+			throw new IllegalArgumentException("n < 1: " + n);
+		if (k < 2)
+			throw new IllegalArgumentException("k < 2: " + k);
 
 		List<T> winner = new ArrayList<>();
 		for (int i = 0, size = candidates.size(); i < n; i++) {
