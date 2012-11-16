@@ -33,7 +33,7 @@ public class GenoType implements Serializable {
 	 * {@link BitSet} object rather than <code>boolean[]</code> or something
 	 * like that.
 	 * 
-	 * @serialField
+	 * @serial
 	 */
 	private final BitSet chromosome;
 

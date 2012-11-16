@@ -254,8 +254,11 @@ public class Individual implements Cloneable, Comparable<Individual>,
 	/**
 	 * 
 	 * @param x
+	 *            a individual to cross.
 	 * @param y
+	 *            another individual to cross.
 	 * @param random
+	 *            random seed.
 	 * @throws NullPointerException
 	 *             if arguments contain null.
 	 * @throws IllegalArgumentException
