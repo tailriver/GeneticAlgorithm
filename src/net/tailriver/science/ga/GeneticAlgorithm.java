@@ -194,7 +194,7 @@ public class GeneticAlgorithm<T extends Individual> {
 		return winner;
 	}
 
-	/* package */static final void probabilityCheck(CharSequence name,
+	protected static final void probabilityCheck(CharSequence name,
 			double probability) {
 		if (!(probability >= 0 && probability <= 1))
 			throw new IllegalArgumentException(name + " must be [0,1]: "
