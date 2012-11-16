@@ -87,8 +87,8 @@ public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 	@Override
 	public List<Individual> applySelection(List<Individual> candidates) {
 		List<Individual> winner = new ArrayList<>();
-		winner.addAll(GeneticAlgorithm.selectElite(candidates, 2));
-		winner.addAll(GeneticAlgorithm.selectTournament(candidates, random, 78,
+		winner.addAll(GeneticAlgorithm.selectElite(candidates, 1));
+		winner.addAll(GeneticAlgorithm.selectTournament(candidates, random, 49,
 				2));
 		return winner;
 	}
@@ -96,9 +96,9 @@ public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 	public static void main(String... args) {
 		Individual best = null;
 		GeneticAlgorithm<Individual> ga = new GeneticAlgorithm<>(
-				new Knapsack(), 80);
+				new Knapsack(), 50);
 		ga.setReverseOrder(true);
-		for (int generation = 0; generation < 100000; generation++) {
+		for (int generation = 0; generation < 10000; generation++) {
 			ga.cross(0.7, 0.9);
 			ga.mutate(0.01);
 
