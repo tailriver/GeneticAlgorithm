@@ -77,6 +77,7 @@ public class GeneticAlgorithm<T extends Individual> {
 	 * @param generationGap
 	 * @throws IllegalArgumentException
 	 *             if arguments are NaN, less than 0 or greater than 1.
+	 * @see GeneticAlgorithmPlan#applyCrossOver(Individual, Individual)
 	 */
 	public void cross(double crossoverRate, double generationGap) {
 		probabilityCheck("crossover rate", crossoverRate);
@@ -177,19 +178,55 @@ public class GeneticAlgorithm<T extends Individual> {
 		return sb.toString();
 	}
 
+	/**
+	 * Applies elite selection.
+	 * 
+	 * @param candidates
+	 *            it should be same as the argument of
+	 *            {@link GeneticAlgorithmPlan#applySelection(List)}.
+	 * @param n
+	 *            the size of the result.
+	 * @return a list of selected individuals. It returns empty list if
+	 *         specified size is zero.
+	 * @throws NullPointerException
+	 *             if specified candidates is <code>null</code>.
+	 * @throws IndexOutOfBoundsException
+	 *             if specified number is negative or exceeds the size of
+	 *             candidates.
+	 */
 	public static final <T extends Individual> List<T> selectElite(
 			List<T> candidates, int n) {
-		if (n < 1)
-			throw new IllegalArgumentException("n < 1: " + n);
 		return candidates.subList(0, n);
 	}
 
+	/**
+	 * Applies tournament selection.
+	 * 
+	 * @param candidates
+	 *            it should be same as the argument of
+	 *            {@link GeneticAlgorithmPlan#applySelection(List)}.
+	 * @param random
+	 *            a random seed using the method. You can use
+	 *            {@link GeneticAlgorithmPlan#getRandom()}.
+	 * @param n
+	 *            the size of the result.
+	 * @param k
+	 *            tournament order (more than 0). if it is 1, the selection acts
+	 *            as a completely random selection.
+	 * @return a list of selected individuals. It returns empty list if
+	 *         specified size is zero.
+	 * @throws NullPointerException
+	 *             if specified candidates or random seed is <code>null</code>.
+	 * @throws IllegalArgumentException
+	 *             if specified candidates is empty, specified size is negative,
+	 *             or specified order is less than 1.
+	 */
 	public static final <T extends Individual> List<T> selectTournament(
 			List<T> candidates, Random random, int n, int k) {
-		if (n < 1)
-			throw new IllegalArgumentException("n < 1: " + n);
-		if (k < 2)
-			throw new IllegalArgumentException("k < 2: " + k);
+		if (n < 0)
+			throw new IllegalArgumentException("n < 0: " + n);
+		if (k < 1)
+			throw new IllegalArgumentException("k < 1: " + k);
 
 		T[] winner = makePopulationArray(n);
 		for (int i = 0, size = candidates.size(); i < n; i++) {
