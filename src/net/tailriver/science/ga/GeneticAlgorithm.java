@@ -191,15 +191,15 @@ public class GeneticAlgorithm<T extends Individual> {
 		if (k < 2)
 			throw new IllegalArgumentException("k < 2: " + k);
 
-		List<T> winner = new ArrayList<>();
+		T[] winner = makePopulationArray(n);
 		for (int i = 0, size = candidates.size(); i < n; i++) {
 			int m = random.nextInt(size);
 			for (int j = 1; j < k; j++) {
 				m = Math.min(m, random.nextInt(size));
 			}
-			winner.add(candidates.get(m));
+			winner[i] = candidates.get(m);
 		}
-		return winner;
+		return Arrays.asList(winner);
 	}
 
 	protected static final void probabilityCheck(CharSequence name,
@@ -210,12 +210,12 @@ public class GeneticAlgorithm<T extends Individual> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private final T makeClone(Individual o) {
+	private static final <T extends Individual> T makeClone(T o) {
 		return (T) o.clone();
 	}
 
 	@SuppressWarnings("unchecked")
-	private final T[] makePopulationArray(int size) {
+	private static final <T extends Individual> T[] makePopulationArray(int size) {
 		return (T[]) new Individual[size];
 	}
 }
