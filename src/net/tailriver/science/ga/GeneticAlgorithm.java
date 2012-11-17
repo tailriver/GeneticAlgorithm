@@ -124,6 +124,7 @@ public class GeneticAlgorithm<T extends Individual> {
 		Random random = plan.getRandom();
 		for (T i : population)
 			i.mutate(random, mutationRate);
+		sorted = false;
 	}
 
 	/**
