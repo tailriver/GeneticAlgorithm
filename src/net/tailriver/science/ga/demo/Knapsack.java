@@ -1,7 +1,6 @@
 package net.tailriver.science.ga.demo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -60,7 +59,7 @@ public class Knapsack implements GeneticAlgorithmPlan<Individual> {
 	}
 
 	@Override
-	public void calculateFitness(Collection<Individual> population) {
+	public void calculateFitness(List<Individual> population) {
 		for (Individual individual : population) {
 			int weightTotal = 0;
 			int priceTotal = 0;

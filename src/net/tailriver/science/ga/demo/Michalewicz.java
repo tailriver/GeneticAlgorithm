@@ -1,7 +1,6 @@
 package net.tailriver.science.ga.demo;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -48,7 +47,7 @@ public class Michalewicz implements GeneticAlgorithmPlan<Individual> {
 	}
 
 	@Override
-	public void calculateFitness(Collection<Individual> population) {
+	public void calculateFitness(List<Individual> population) {
 		for (Individual individual : population) {
 			double x = individual.getGenoTypeDouble(0, -1, 2);
 			double fitness = x * Math.sin(10d * Math.PI * x) + 2;

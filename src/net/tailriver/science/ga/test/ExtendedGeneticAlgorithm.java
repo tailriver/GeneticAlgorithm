@@ -1,6 +1,5 @@
 package net.tailriver.science.ga.test;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -30,7 +29,7 @@ public class ExtendedGeneticAlgorithm extends
 	}
 
 	@Override
-	public void calculateFitness(Collection<ExtendedIndividual> population) {
+	public void calculateFitness(List<ExtendedIndividual> population) {
 	}
 
 	@Override

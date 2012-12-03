@@ -1,6 +1,5 @@
 package net.tailriver.science.ga;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -51,9 +50,9 @@ public interface GeneticAlgorithmPlan<T extends Individual> {
 	 * {@link IllegalStateException} will throw later.
 	 * 
 	 * @param population
-	 *            Collection of {@link Individual} to calculate fitness.
+	 *            List of {@link Individual} to calculate fitness.
 	 */
-	void calculateFitness(Collection<T> population);
+	void calculateFitness(List<T> population);
 
 	/**
 	 * Called from {@link GeneticAlgorithm#cross(double, double)}.
